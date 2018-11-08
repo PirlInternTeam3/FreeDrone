@@ -2,4 +2,4 @@
 print("test2")
 
 # 기존코드 내용변경
-print("hello!")
+print("hi!")
