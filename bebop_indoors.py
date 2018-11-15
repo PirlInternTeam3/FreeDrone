@@ -5,6 +5,8 @@ amount of flying, be sure you are doing this in an open area and are prepared to
 Author: Amy McGovern
 """
 
+# example 출처 : https://github.com/amymcgovern/pyparrot/tree/master/examples
+
 from pyparrot.Bebop import Bebop
 
 bebop = Bebop(drone_type="Bebop2")
