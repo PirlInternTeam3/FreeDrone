@@ -1,3 +1,4 @@
+#opencv 를 이용한 웹캠을 테스트합니다.
 import cv2
 
 def show_webcam(mirror=False):
