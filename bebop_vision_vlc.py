@@ -19,12 +19,12 @@ class UserVision:
 
     def save_pictures(self, args):
 
-        # print("saving picture")
+        print("saving picture")
         img = self.vision.get_latest_valid_picture()
 
         if (img is not None):
             filename = "test_image_%06d.png" % self.index
-            # cv2.imwrite(filename, img)
+            cv2.imwrite(filename, img)
             self.index += 1
 
 
@@ -46,6 +46,7 @@ def demo_user_code_after_vision_opened(bebopVision, args):
         # print("Moving the camera using velocity")
         # bebop.pan_tilt_camera_velocity(pan_velocity=0, tilt_velocity=-2, duration=4)
          bebop.smart_sleep(5)
+
         # land
         #bebop.safe_land(5)
 
@@ -65,7 +66,6 @@ if __name__ == "__main__":
     success = bebop.connect(5)
 
     if (success):
-        print("bebop connected successfully")
         # start up the video
         bebopVision = DroneVisionGUI(bebop, is_bebop=True, user_code_to_run=demo_user_code_after_vision_opened,
                                      user_args=(bebop,))
@@ -73,5 +73,6 @@ if __name__ == "__main__":
         userVision = UserVision(bebopVision)
         bebopVision.set_user_callback_function(userVision.save_pictures, user_callback_args=None)
         bebopVision.open_video()
+
     else:
         print("Error connecting to bebop. Retry")
