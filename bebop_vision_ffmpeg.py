@@ -16,7 +16,7 @@ class UserVision:
         self.vision = vision
 
     def save_pictures(self, args):
-        #print("saving picture")
+        print("saving picture")
         img = self.vision.get_latest_valid_picture()
 
         if (img is not None):
