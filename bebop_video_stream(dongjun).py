@@ -4,7 +4,7 @@ bebop = Bebop()
 
 print("connecting...")
 success = bebop.connect(10)
-print("success:",success)
+print("success status:",success)
 
 if (success):
     print("turning on the video")
