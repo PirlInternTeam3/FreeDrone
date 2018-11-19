@@ -43,7 +43,7 @@ while True:
     if inp == "s":
         bebop.fly_direct(roll=0, pitch=-20, yaw=0, vertical_movement=0, duration=0.5)
     if inp == "p":
-        breakwwwwwww
+        break
 
 
 

@@ -23,9 +23,9 @@ class UserVision:
         img = self.vision.get_latest_valid_picture()
 
         if (img is not None):
-            filename = "test_image_%06d.png" % self.index
+            filename = "./images/bebop2/test_image_%06d.png" % self.index
             print("filename", filename)
-            cv2.imshow(filename, img)
+            cv2.imwrite(filename, img)
             self.index += 1
         else:
             print("img is None")
