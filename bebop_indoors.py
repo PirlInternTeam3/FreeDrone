@@ -18,6 +18,7 @@ print(success)
 if (success):
     print("turning on the video")
     bebop.start_video_stream()
+    bebop.set_video_stream_mode()
 
     print("sleeping")
     bebop.smart_sleep(2)
