@@ -23,12 +23,12 @@ class UserVision:
         img = self.vision.get_latest_valid_picture()
 
         if (img is not None):
-            filename = "test_image_%06d.png" % self.index
+            filename = "./images/bebop2/test_image_%06d.png" % self.index
             print("filename", filename)
-            cv2.imshow(filename, img)
+            cv2.imwrite(filename, img)
             self.index += 1
         else:
-            print("img is None")
+            print("No img...")
 
 def demo_user_code_after_vision_opened(bebopVision, args):
     bebop = args[0]
@@ -47,7 +47,6 @@ def demo_user_code_after_vision_opened(bebopVision, args):
     if (bebopVision.vision_running):
         print("Moving the camera using velocity")
         bebop.pan_tilt_camera_velocity(pan_velocity=0, tilt_velocity=-2, duration=4)
-        bebop.smart_sleep(5)
 
         # land
         #bebop.safe_land(5)
