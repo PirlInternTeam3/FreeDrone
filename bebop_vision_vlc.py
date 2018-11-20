@@ -24,7 +24,7 @@ class UserVision:
 
         if (img is not None):
             filename = "./images/bebop2/test_image_%06d.png" % self.index
-            print("filename", filename)
+            print("filename:", filename)
             cv2.imwrite(filename, img)
             self.index += 1
         else:
