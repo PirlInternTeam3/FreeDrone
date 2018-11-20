@@ -25,7 +25,7 @@ if (success):
 
     bebop.ask_for_state_update()
 
-    bebop.safe_takeoff(10)
+    #bebop.safe_takeoff(10)
 
     # set safe indoor parameters
     bebop.set_max_tilt(5)

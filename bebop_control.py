@@ -48,7 +48,7 @@ while True:
 
 
 #print("Turning relative")
-#bebop.move_relative(0, 0, 0, math.radians(90))
+bebop.move_relative(0, 0, 0, math.radians(90))
 
 # this works but requires a larger test space than I currently have. Uncomment with care and test only in large spaces!
 #print("Flying direct: going around in a circle (yes you can mix roll, pitch, yaw in one command!)")
