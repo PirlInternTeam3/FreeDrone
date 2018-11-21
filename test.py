@@ -6,18 +6,17 @@ from pyparrot.Bebop import Bebop
 import math
 
 
-
 def main():
     # initializes Pygame
     pygame.init()
 
-    # sets the window title in unicode
-    pygame.display.set_caption(u'FreeDrone Flight')
+    # sets the window title
+    pygame.display.set_caption(u'Keyboard events')
 
     # sets the window size
     pygame.display.set_mode((400, 400))
 
-    # 키입력 release 전까지 반복하기
+    #
     pygame.key.set_repeat(True)
 
     bebop = Bebop()
@@ -33,6 +32,20 @@ def main():
 
     bebop.safe_takeoff(5)
 
+    # print("Flying direct: going forward (positive pitch)") #전진
+    # bebop.fly_direct(roll=0, pitch=20, yaw=0, vertical_movement=0, duration=0.1)
+    #
+    # print("Flying direct: yaw") #회전
+    # bebop.fly_direct(roll=0, pitch=0, yaw=20, vertical_movement=0, duration=0.1)
+    #
+    # print("Flying direct: going backwards (negative pitch)") #후진
+    # bebop.fly_direct(roll=0, pitch=-20, yaw=0, vertical_movement=0, duration=3)
+    #
+    # print("Flying direct: roll") #좌우
+    # bebop.fly_direct(roll=20, pitch=0, yaw=0, vertical_movement=0, duration=0.1)
+    #
+    # print("Flying direct: going up") #업
+    # bebop.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=10, duration=0.1)
 
     # infinite loop
     while True:
@@ -44,14 +57,14 @@ def main():
             # stops the application
             break
 
-        # captures the 'KEYDOWN' and 'KEYUP' events
+        # cptures the 'KEYDOWN' and 'KEYUP' events
         if event.type in (pygame.KEYDOWN, pygame.KEYUP):
             # gets the key name
             key_name = pygame.key.name(event.key)
 
             # converts to uppercase the key name
             key_name = key_name.upper()
-            
+
             # if any key is pressed
             if event.type == pygame.KEYDOWN:
                 # prints on the console the key pressed
@@ -68,9 +81,9 @@ def main():
                 elif key_name == "S":
                     bebop.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=-10, duration=0.1)
                 elif key_name == "A":
-                    bebop.fly_direct(roll=0, pitch=0, yaw=20, vertical_movement=0, duration=0.1)
+                    bebop.fly_direct(roll=0, pitch=0, yaw=-60, vertical_movement=0, duration=0.1)
                 elif key_name == "D":
-                    bebop.fly_direct(roll=0, pitch=0, yaw=-20, vertical_movement=0, duration=0.1)
+                    bebop.fly_direct(roll=0, pitch=0, yaw=60, vertical_movement=-0, duration=0.1)
                 print(u'"{}" key pressed'.format(key_name))
 
             # if any key is released
