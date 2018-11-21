@@ -16,6 +16,7 @@ success = bebop.connect(10)
 print(success)
 
 if (success):
+    #tetetetetetet
     print("turning on the video")
     bebop.start_video_stream()
     bebop.set_video_stream_mode()
