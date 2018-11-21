@@ -2,6 +2,9 @@ from pyparrot.Bebop import Bebop
 
 bebop = Bebop()
 
+battery = bebop.sensors.battery
+flying_state = bebop.sensors.flying_state
+
 print("connecting")
 success = bebop.connect(10)
 print("success:",success)
@@ -10,12 +13,12 @@ i=0
 bebop.ask_for_state_update()
 
 while True:
-    current_battery = bebop.set_user_sensor_callback(Battery,'batteryLevel')
-    print("battery:",current_battery)
+    if i%100==0:
+        print("battery:",battery)
+        print("flying state:",flying_state)
 
-    if i==100:
+    if i==1000:
         break
-
     i+=1
 
 print("DONE - disconnecting")
