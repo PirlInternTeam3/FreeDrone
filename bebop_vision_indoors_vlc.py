@@ -23,9 +23,9 @@ class UserVision:
         img = self.vision.get_latest_valid_picture()
 
         if (img is not None):
-            # filename = "./images/bebop2/test_image_%06d.png" % self.index
-            # print("filename:", filename)
-            # cv2.imwrite(filename, img)
+            filename = "./images/bebop2/test_image_%06d.png" % self.index
+            print("filename:", filename)
+            cv2.imwrite(filename, img)
             self.index += 1
         else:
             print("No img...")
@@ -36,20 +36,20 @@ def demo_user_code_after_vision_opened(bebopVision, args):
     print("Vision successfully started!")
     # removed the user call to this function (it now happens in open_video())
     # bebopVision.start_video_buffering()
+
     # takeoff
-    #bebop.safe_takeoff(5)
+    bebop.safe_takeoff(5)
 
     # skipping actually flying for safety purposes indoors - if you want
     # different pictures, move the bebop around by hand
-    print("Fly me around by hand!")
-    #bebop.smart_sleep(5)
+    bebop.smart_sleep(10)
 
     if (bebopVision.vision_running):
         print("Moving the camera using velocity")
         bebop.pan_tilt_camera_velocity(pan_velocity=0, tilt_velocity=-2, duration=4)
 
         # land
-        #bebop.safe_land(5)
+        bebop.safe_land(5)
 
         print("Finishing demo and stopping vision")
         bebopVision.close_video()
