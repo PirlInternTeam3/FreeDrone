@@ -1,25 +1,26 @@
 from pyparrot.Bebop import Bebop
 
 bebop = Bebop()
+sensor_dict=bebop.sensors.sensors_dict
 
-battery = bebop.sensors.battery
-flying_state = bebop.sensors.flying_state
 
 print("connecting")
 success = bebop.connect(10)
-print("success:",success)
+print("connection success:",success)
 
-i=0
 bebop.ask_for_state_update()
 
-while True:
-    if i%100==0:
-        print("battery:",battery)
-        print("flying state:",flying_state)
+# for key, value in sensors_dict.items():
+#     print(key,":",value)
 
-    if i==1000:
-        break
-    i+=1
+while True:
+    print("BatteryStateChanged_battery_percent:",sensor_dict['BatteryStateChanged_battery_percent'])
+    print("AttitudeChanged_roll:",sensor_dict['AttitudeChanged_roll'])
+    print("AttitudeChanged_pitch:",sensor_dict['AttitudeChanged_pitch'])
+    print("AttitudeChanged_yaw:", sensor_dict['AttitudeChanged_yaw'])
+
+    print("")
+    print("")
 
 print("DONE - disconnecting")
 bebop.disconnect()
