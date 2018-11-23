@@ -143,7 +143,7 @@ if __name__ == "__main__":
         bebopVision = DroneVisionGUI(bebop, is_bebop=True, user_code_to_run=demo_user_code_after_vision_opened, user_args=(bebop,))
 
         userVision = UserVision(bebopVision)
-        bebopVision.set_user_callback_function(userVision.save_pictures, user_callback_args=None)
+        save = bebopVision.set_user_callback_function(userVision.save_pictures, user_callback_args=None)
 
         bebopVision.open_video()
 
