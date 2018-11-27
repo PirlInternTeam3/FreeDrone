@@ -367,7 +367,7 @@ if __name__ == "__main__":
         x.append(epoch)
         y.append(Accuracy_val)
 
-    save_path = saver.save(sess, './checkpoint/train/bebop2_ckpt_train_file')
+    save_path = saver.save(sess, './checkpoint/bebop2_ckpt_train_file')
     print("Model saved in here => ", save_path)
     coord.request_stop()
     coord.join(threads)
