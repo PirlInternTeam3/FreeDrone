@@ -13,7 +13,7 @@ flags.DEFINE_integer('maxpool_filter_size', 2, 'maxpool_size.')
 flags.DEFINE_integer('num_classes', 3, 'num_classes size.')
 flags.DEFINE_integer('batch_size', 100, 'input batch_size.')
 flags.DEFINE_float('learning_rate', 0.0001, 'Initial learning rate.')
-flags.DEFINE_integer('training_epochs', 1, 'input training_epochs')
+flags.DEFINE_integer('training_epochs', 200, 'input training_epochs')
 
 def Data_preprocess():
     path_test_bp = "./images/test/before_preprocess/"
