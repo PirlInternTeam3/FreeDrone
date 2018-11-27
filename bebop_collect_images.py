@@ -1,88 +1,46 @@
-"""
-Demo of the Bebop vision using DroneVisionGUI (relies on libVLC).
-multi-threaded approach than DroneVision
-It is a different
-Author: Amy McGovern
-"""
 from pyparrot.Bebop import Bebop
 from pyparrot.DroneVisionGUI import DroneVisionGUI
-import threading
 import cv2
-import time
 import pygame
 
 isAlive = False
 
 class UserVision:
     def __init__(self, vision):
-        self.index = 0
+        self.index_f = 0
+        self.index_l = 0
+        self.index_r = 0
         self.vision = vision
 
     def save_pictures_forward(self, args):
-        print("saving picture")
         img = self.vision.get_latest_valid_picture()
         if (img is not None):
-            filename = "./images/forward/forward_%06d.png" % self.index
+            filename = "./images/train/before_preprocess/forward/%06d.png" % self.index_f
             print("filename:", filename)
             cv2.imwrite(filename, img)
-            self.index += 1
+            self.index_f += 1
         else:
-            print("No img...")
-
-    def save_pictures_backward(self, args):
-        print("saving picture")
-        img = self.vision.get_latest_valid_picture()
-        if (img is not None):
-            filename = "./images/backward/backward_%06d.png" % self.index
-            print("filename:", filename)
-            cv2.imwrite(filename, img)
-            self.index += 1
-        else:
-            print("No img...")
-
-    def save_pictures_move_left(self, args):
-        print("saving picture")
-        img = self.vision.get_latest_valid_picture()
-        if (img is not None):
-            filename = "./images/move_left/move_left_%06d.png" % self.index
-            print("filename:", filename)
-            cv2.imwrite(filename, img)
-            self.index += 1
-        else:
-            print("No img...")
-
-    def save_pictures_move_right(self, args):
-        print("saving picture")
-        img = self.vision.get_latest_valid_picture()
-        if (img is not None):
-            filename = "./images/move_right/move_right_%06d.png" % self.index
-            print("filename:", filename)
-            cv2.imwrite(filename, img)
-            self.index += 1
-        else:
-            print("No img...")
+            print("No image...")
 
     def save_pictures_turn_left(self, args):
-        print("saving picture")
         img = self.vision.get_latest_valid_picture()
         if (img is not None):
-            filename = "./images/turn_left/turn_left_%06d.png" % self.index
+            filename = "./images/train/before_preprocess/turn_left/%06d.png" % self.index_l
             print("filename:", filename)
             cv2.imwrite(filename, img)
-            self.index += 1
+            self.index_l += 1
         else:
-            print("No img...")
+            print("No image...")
 
     def save_pictures_turn_right(self, args):
-        print("saving picture")
         img = self.vision.get_latest_valid_picture()
         if (img is not None):
-            filename = "./images/turn_right/turn_right_%06d.png" % self.index
+            filename = "./images/train/before_preprocess/turn_right/%06d.png" % self.index_r
             print("filename:", filename)
             cv2.imwrite(filename, img)
-            self.index += 1
+            self.index_r += 1
         else:
-            print("No img...")
+            print("No image...")
 
 def demo_user_code_after_vision_opened(bebopVision, args):
 
@@ -107,11 +65,6 @@ def demo_user_code_after_vision_opened(bebopVision, args):
 
     # takeoff
     bebop.safe_takeoff(5)
-
-    # skipping actually flying for safety purposes indoors - if you want
-    # different pictures, move the bebop around by hand
-    print("Fly me around by hand!")
-    bebop.smart_sleep(5)
 
     if (bebopVision.vision_running):
 
@@ -142,15 +95,12 @@ def demo_user_code_after_vision_opened(bebopVision, args):
                         bebop.fly_direct(roll=0, pitch=40, yaw=0, vertical_movement=0, duration=0.1)
                     elif key_name == "DOWN":
                         print()
-                        userVision.save_pictures_backward(args)
-                        bebop.fly_direct(roll=0, pitch=-40, yaw=0, vertical_movement=0, duration=0.1)
+                        bebop.fly_direct(roll=0, pitch=-30, yaw=0, vertical_movement=0, duration=0.1)
                     elif key_name == "LEFT":
                         print()
-                        userVision.save_pictures_move_left(args)
-                        bebop.fly_direct(roll=-40, pitch=0, yaw=0, vertical_movement=0, duration=0.1)
+                        bebop.fly_direct(roll=-30, pitch=0, yaw=0, vertical_movement=0, duration=0.1)
                     elif key_name == "RIGHT":
                         print()
-                        userVision.save_pictures_move_right(args)
                         bebop.fly_direct(roll=40, pitch=0, yaw=0, vertical_movement=0, duration=0.1)
                     elif key_name == "W":
                         print()
@@ -172,7 +122,6 @@ def demo_user_code_after_vision_opened(bebopVision, args):
                         break
                     print(u'"{}" key pressed'.format(key_name))
 
-
                 # if any key is released
                 elif event.type == pygame.KEYUP:
                     # prints on the console the released key
@@ -180,8 +129,6 @@ def demo_user_code_after_vision_opened(bebopVision, args):
 
         # finalizes Pygame
         pygame.quit()
-
-        bebop.smart_sleep(5)
 
         # land
         bebop.safe_land(5)
