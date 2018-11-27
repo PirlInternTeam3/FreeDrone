@@ -13,11 +13,11 @@ flags.DEFINE_integer('maxpool_filter_size', 2, 'maxpool_size.')
 flags.DEFINE_integer('num_classes', 3, 'num_classes size.')
 flags.DEFINE_integer('batch_size', 100, 'input batch_size.')
 flags.DEFINE_float('learning_rate', 0.0001, 'Initial learning rate.')
-flags.DEFINE_integer('training_epochs', 200, 'input training_epochs')
+flags.DEFINE_integer('training_epochs', 1, 'input training_epochs')
 
 # 텍스트 파일을 CSV 파일로 읽어와 큐에 셔플해서 넣어준다
 def Create_queue(text_file_name, num_epochs=None):
-    train_data = pd.read_csv(text_file_name, names=['image', 'label'])
+    train_data = pd.read_csv(text_file_name, names=['image', 'name', 'label'])
     train_data.to_csv('./train_data/bebop2_train_dataset.csv', header=False, index=False)  # 나중에 index 수를 얻기위해 하나 생성
     train_images = list(train_data['image'])
     train_labels = list(train_data['label'])
@@ -344,7 +344,7 @@ if __name__ == "__main__":
             images_, labels_ = sess.run([image_batch, label_batch])
             cost_val, _ = sess.run([cost, optimizer], feed_dict={images: images_, labels: labels_, keep_prob: 0.7})
             avg_cost += cost_val / total_batch
-        print('Epoch: ', '%04d' % (epoch + 1), 'cost =', '{:.9f}'.format(avg_cost))
+        print('Epoch: ', '%04d' % (epoch + 1), 'avg_cost =', '{:.9f}'.format(avg_cost))
 
         ##################################################정확도 측정#####################################################
         # with tf.name_scope("prediction"):
@@ -368,7 +368,7 @@ if __name__ == "__main__":
         y.append(Accuracy_val)
 
     save_path = saver.save(sess, './checkpoint/train/bebop2_ckpt_train_file')
-    print("Model saved in file: ", save_path)
+    print("Model saved in here => ", save_path)
     coord.request_stop()
     coord.join(threads)
     # from tensorflow.python.tools import inspect_checkpoint as chkp
