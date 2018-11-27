@@ -13,14 +13,12 @@ flags.DEFINE_integer('maxpool_filter_size', 2, 'maxpool_size.')
 flags.DEFINE_integer('num_classes', 3, 'num_classes size.')
 flags.DEFINE_integer('batch_size', 100, 'input batch_size.')
 flags.DEFINE_float('learning_rate', 0.0001, 'Initial learning rate.')
-# flags.DEFINE_float('keep_prob_train', 0.7, 'input keep_prob_train')
-# flags.DEFINE_float('keep_prob_test', 1.0, 'input keep_prob_test')
-flags.DEFINE_integer('training_epochs', 200, 'input training_epochs')
+flags.DEFINE_integer('training_epochs', 1, 'input training_epochs')
 
 def Data_preprocess():
     path_test_bp = "./images/test/before_preprocess/"
     path_test_ap = "./images/test/after_preprocess/"
-    bebop_create_data.resize_pixel(path_test_bp, path_test_ap + "after_resize_pixel/", 96, 96)
+    bebop_create_data.resize_pixel(path_test_bp, path_test_bp + "after_resize_pixel/", 96, 96)
     bebop_create_data.change_color(path_test_bp + "after_resize_pixel/", path_test_ap)
     bebop_create_data.class_test_label(path_test_ap, "./test_data/")
 
@@ -307,8 +305,8 @@ if __name__ == "__main__":
 
     prediction = tf.nn.softmax(build_model(images))
 
-    train_data = pd.read_csv("./test_data/bebop2_test_data.txt", names=['image'])
-    train_data.to_csv('./test_data/bebop2_test_dataset.csv', header=False, index=False)
+    test_data = pd.read_csv("./test_data/bebop2_test_data.txt", names=['image'])
+    test_data.to_csv('./test_data/bebop2_test_dataset.csv', header=False, index=False)
     bebop2_test_dataset = pd.read_csv('test_data/bebop2_test_dataset.csv')
 
     test_image_batch = Data_batch("./test_data/bebop2_test_data.txt", len(bebop2_test_dataset.index))
@@ -323,7 +321,7 @@ if __name__ == "__main__":
         test_images = sess.run(test_image_batch)
         sess.run(tf.global_variables_initializer())
 
-        saver.restore(sess, './checkpoint/test/bebop2_ckpt_test_file')
+        saver.restore(sess, './checkpoint/bebop2_ckpt_train_file')
         p_val = sess.run(prediction, feed_dict={images: test_images, keep_prob: 1.0})
         print(p_val)
         path=[]
@@ -338,6 +336,6 @@ if __name__ == "__main__":
     name =[forward, turn_left, turn_right]
 
     print("\n number of prediction : [forward, turn_left, turn_right]\n")
-    print("\t--->", name)
+    print("\t\t   --->", name)
     cnt=np.argmax(name)
     x = ["forward", "turn_left", "turn_right"]
