@@ -26,7 +26,7 @@ def resize_pixel(image_file,output_file, width_size, height_size):
                     for j in range(0, im.size[1]):
                         load_new_img[i + i_offset, j + j_offset] = load_img[i, j]
 
-                new_img.save(output_file+file_name,'JPEG')
+                new_img.save(output_file+file_name,'PNG')
                 fd.close()
 
             except Exception as e:
@@ -44,7 +44,7 @@ def change_color(image_file, output_path):
                 print("[Error]%s: Image writing error: %s" %(image_file, str(e)))
             fd.close()
 
-def class_label(image_file, output_path, kinds):
+def class_label(image_file, output_path, cnt, kinds):
     if kinds=="train":
         fd = io.open(output_path + 'bebop2_train_data.txt', 'a')
     elif kinds=="validation":
@@ -53,7 +53,7 @@ def class_label(image_file, output_path, kinds):
     for (path,dir,files) in os.walk(image_file):
         for file_name in files:
             label_name = image_file.split('/')[-2]
-            data = path + file_name + "," + label_name + "\n"
+            data = path + file_name + "," + label_name + "," + str(cnt) + "\n"
             fd.write(data)
     fd.close()
 
@@ -73,20 +73,20 @@ def shuffle_label(label_file, output_path):
     open(output_path, 'w').writelines(lines)
 
 def run(x):
+    where_to_go = ["forward/", "turn_left/", "turn_right/"]
     path_train_bp = "./images/train/before_preprocess/"
     path_train_ap = "./images/train/after_preprocess/"
     path_train_bp_v = "./images/train/before_preprocess/validation_data/"
     path_train_ap_v = "./images/train/after_preprocess/validation_data/"
-
     # train
     resize_pixel(path_train_bp + x, path_train_bp + "after_resize_pixel/" + x, 96, 96)
     change_color(path_train_bp + "after_resize_pixel/" + x, path_train_ap + x)
-    class_label(path_train_ap + x, "./train_data/", "train")
+    class_label(path_train_ap + x, "./train_data/", where_to_go.index(x), "train")
 
     # validation
     resize_pixel(path_train_bp_v + x, path_train_bp_v + "after_resize_pixel/" + x, 96, 96)
     change_color(path_train_bp_v + "after_resize_pixel/" + x, path_train_ap_v + x)
-    class_label(path_train_ap_v + x, "./train_data/", "validation")
+    class_label(path_train_ap_v + x, "./train_data/", where_to_go.index(x), "validation")
 
 if __name__ == "__main__":
     start_time = int(time.time())
