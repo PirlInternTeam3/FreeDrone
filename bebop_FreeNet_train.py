@@ -374,7 +374,7 @@ if __name__ == "__main__":
     # from tensorflow.python.tools import inspect_checkpoint as chkp
     # chkp.print_tensors_in_checkpoint_file('./checkpoint/ear_model.ckpt', tensor_name='', all_tensors=True)
 
-    print("\nLearning Finished!: ", time.time() - starttime, "seconds")
+    print("\n Learning Finished!: ", time.time() - starttime, "seconds")
     plt.plot(x, y)
     plt.xlabel("epoch")
     plt.ylabel("Accuracy")
