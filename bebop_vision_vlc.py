@@ -49,7 +49,7 @@ def demo_user_code_after_vision_opened(bebopVision, args):
         # bebop.pan_tilt_camera_velocity(pan_velocity=0, tilt_velocity=0, duration=4)
 
         # land
-        #bebop.safe_land(5)
+        # bebop.safe_land(5)
 
         print("Finishing demo and stopping vision")
         bebopVision.close_video()
@@ -73,6 +73,7 @@ if __name__ == "__main__":
         userVision = UserVision(bebopVision)
         bebopVision.set_user_callback_function(userVision.save_pictures, user_callback_args=None)
         bebopVision.open_video()
+        bebopVision.c_c()
 
     else:
         print("Error connecting to bebop. Retry")
