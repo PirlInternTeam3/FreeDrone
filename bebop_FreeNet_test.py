@@ -2,6 +2,7 @@ import tensorflow as tf
 import pandas as pd
 import bebop_create_data
 import numpy as np
+import time
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
@@ -302,13 +303,10 @@ if __name__ == "__main__":
     Data_preprocess()
     images = tf.placeholder(tf.float32, [None, FLAGS.image_size, FLAGS.image_size, FLAGS.image_color])
     keep_prob = tf.placeholder(tf.float32)
-
     prediction = tf.nn.softmax(build_model(images))
-
     test_data = pd.read_csv("./test_data/bebop2_test_data.txt", names=['image'])
     test_data.to_csv('./test_data/bebop2_test_dataset.csv', header=False, index=False)
     bebop2_test_dataset = pd.read_csv('test_data/bebop2_test_dataset.csv')
-
     test_image_batch = Data_batch("./test_data/bebop2_test_data.txt", len(bebop2_test_dataset.index))
     init_op = tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
 
@@ -320,19 +318,21 @@ if __name__ == "__main__":
         threads = tf.train.start_queue_runners(sess=sess, coord=coord)
         test_images = sess.run(test_image_batch)
         sess.run(tf.global_variables_initializer())
-
         saver.restore(sess, './checkpoint/bebop2_ckpt_train_file')
         p_val = sess.run(prediction, feed_dict={images: test_images, keep_prob: 1.0})
         print(p_val)
         path=[]
 
+        starttime = time.time()
+
         for x in range(len(bebop2_test_dataset.index)):
             path.append(sess.run(tf.argmax(p_val[x])))
+
+        print("\n Duration time: ", time.time() - starttime, "seconds")
 
     forward = path.count("forward")
     turn_left = path.count("turn_left")
     turn_right = path.count("turn_right")
-
     name =[forward, turn_left, turn_right]
 
     print("\n number of prediction : [forward, turn_left, turn_right]\n")
