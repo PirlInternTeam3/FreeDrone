@@ -92,10 +92,10 @@ def demo_user_code_after_vision_opened(bebopVision, args):
                     if key_name == "UP":
                         print()
                         userVision.save_pictures_forward(args)
-                        bebop.fly_direct(roll=0, pitch=40, yaw=0, vertical_movement=0, duration=0.1)
+                        bebop.fly_direct(roll=0, pitch=20, yaw=0, vertical_movement=0, duration=0.1)
                     elif key_name == "DOWN":
                         print()
-                        bebop.fly_direct(roll=0, pitch=-30, yaw=0, vertical_movement=0, duration=0.1)
+                        bebop.fly_direct(roll=0, pitch=-20, yaw=0, vertical_movement=0, duration=0.1)
                     elif key_name == "LEFT":
                         print()
                         bebop.fly_direct(roll=-30, pitch=0, yaw=0, vertical_movement=0, duration=0.1)
