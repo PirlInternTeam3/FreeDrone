@@ -101,7 +101,7 @@ def control_and_collect(bebopVision, args):
                 gray_image = cv2.cvtColor(b_img, cv2.COLOR_BGR2GRAY)
 
                 # 임시 배열을 만들어 이를 (1, 480 * 856) 차원으로 변환하고, 데이터 타입도 int에서 float 으로 바꿔준다.
-                temp_array = gray_image.reshape(1, -1).astype(np.float32)
+                temp_array = gray_image.reshape(1, input_size).astype(np.float32)
 
                 filename = "./images/bebop2/test_image_%06d.jpg" % frame
 
