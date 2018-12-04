@@ -11,12 +11,13 @@ import glob
 from sklearn.model_selection import train_test_split
 from matplotlib import pyplot as plt
 
-input_size = 480 * 856  # height * width
+height = 480
+width = 856
+input_size = height * width  # height * width
 num_classes = 8  # number of classes
 
 def load_data(path = './training_data/*.npz', random_state = 42):
-
-    x_train = np.empty((0, 120, 320, 1))
+    x_train = np.empty((0, height, width, 1))
     y_train = np.empty((0, num_classes))
     training_data = glob.glob(path)
 
@@ -24,18 +25,15 @@ def load_data(path = './training_data/*.npz', random_state = 42):
         with np.load(single_npz) as data:
             x = data['train']
             y = data['train_labels']
-        x = np.reshape(x, (-1, 120, 320, 1))
+        x = np.reshape(x, (-1, height, width, 1)) # (the number of data, height, width, 1)
 
         x_train = np.vstack((x_train, x))
         y_train = np.vstack((y_train, y))
 
-    # 트레이닝셋을 잘못 만들어서 잘라줘함
-    y_train = y_train[:, :-1]
-
     print('load data!!!')
 
     # train test split, 7:3
-    return train_test_split(x_train, y_train, test_size=0.3 ,random_state= random_state)
+    return train_test_split(x_train, y_train, test_size=0.3, random_state= random_state)
 
 def show_data(x, y):
     print("show data!!!")
@@ -50,18 +48,26 @@ def show_data(x, y):
 
         sub_plt = axarr[int(i / plt_row), int(i % plt_col)]
         sub_plt.axis('off')
-        sub_plt.imshow(x[i].reshape(120, 320))
+        sub_plt.imshow(x[i].reshape(height, width))
 
         label = np.argmax(y[i])
 
         if label == 0:
-            direction = 'left'
+            direction = 'Forward'
         elif label == 1:
-            direction = 'right'
+            direction = 'Backward'
         elif label == 2:
-            direction = 'forward'
+            direction = 'Right'
         elif label == 3:
-            direction = 'backward'
+            direction = 'Left'
+        elif label == 4:
+            direction = 'Up'
+        elif label == 5:
+            direction = 'Down'
+        elif label == 6:
+            direction = 'Clockwise'
+        elif label == 7:
+            direction = 'Counter Clockwise'
 
         sub_plt_title = str(label) + " : " + direction
         sub_plt.set_title(sub_plt_title)
@@ -117,7 +123,7 @@ class NeuralNetwork():
         plt.xlabel('epoch')
         plt.legend()
 
-        plt.show();
+        plt.show()
 
     def evaluate(self, x_test, y_test , batch_size = 256):
         self.batch_size = batch_size
@@ -135,7 +141,7 @@ class NeuralNetwork():
         for i in range(n):
             print('True : ' + str(np.argmax(y_test[xhat_idx[i]])) + ', Predict : ' + str(yhat_classes[i]))
 
-    def create_nvidia_net(self, raw = 120, column = 320, channel = 1):
+    def create_nvidia_net(self, raw = height, column = width, channel = 1):
         print('create nvidia model!!')
 
         input_shape = (raw, column, channel)
@@ -184,7 +190,7 @@ class NeuralNetwork():
 
         self.model = model
 
-    def create_VGG_net(self, raw=120, column=320, channel=1):
+    def create_VGG_net(self, raw=height, column=width, channel=1):
         print('create VGG model!!')
 
         inputShape = (raw, column, channel)
@@ -251,7 +257,7 @@ class NeuralNetwork():
         # return the constructed network architecture
         self.model = model
 
-    def create_posla_net(self, raw=120, column=320, channel=1):
+    def create_posla_net(self, raw=height, column=width, channel=1):
         # model setting
 
         inputShape = (raw, column, channel)
