@@ -11,10 +11,13 @@ import glob
 from sklearn.model_selection import train_test_split
 from matplotlib import pyplot as plt
 
+input_size = 480 * 856  # height * width
+num_classes = 8  # number of classes
+
 def load_data(path = './training_data/*.npz', random_state = 42):
 
     x_train = np.empty((0, 120, 320, 1))
-    y_train = np.empty((0, 4))
+    y_train = np.empty((0, num_classes))
     training_data = glob.glob(path)
 
     for single_npz in training_data:

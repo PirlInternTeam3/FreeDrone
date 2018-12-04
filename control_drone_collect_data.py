@@ -13,7 +13,10 @@ import numpy as np
 import pygame
 import os
 
-
+height = 480
+width = 856
+input_size = height * width  # height * width
+num_classes = 8  # number of classes
 
 
 class UserVision:
@@ -36,9 +39,8 @@ class UserVision:
 
 def control_and_collect(bebopVision, args):
 
+
     # 이 코드를 돌리기 위해선 먼저 인풋 사이즈와 클래스 갯수를 정해줘야 함.
-    input_size = 480 * 856  # height * width
-    num_classes = 8         # number of classes
 
     # 클래스의 갯수(N) 만큼 one-hot encoding 해준다 ( N X N 단위행렬 )
     k = np.zeros((num_classes, num_classes), 'float')
@@ -76,12 +78,18 @@ def control_and_collect(bebopVision, args):
 
 
     # 이륙
-    bebop.safe_takeoff(5)
+    # bebop.safe_takeoff(5)
 
     # 동작 전 대기 시간
-    bebop.smart_sleep(5)
+    # bebop.smart_sleep(5)
 
     if (bebopVision.vision_running):
+
+        file_name = str(int(time.time()))
+
+        dir_img = "images/bebop2/" + file_name
+        if not os.path.exists(dir_img):
+            os.makedirs(dir_img)
 
         # q 입력 받았을 때 while 문 탈출을 위한 loop 변수 선언
         loop = True
@@ -103,7 +111,7 @@ def control_and_collect(bebopVision, args):
                 # 임시 배열을 만들어 이를 (1, 480 * 856) 차원으로 변환하고, 데이터 타입도 int에서 float 으로 바꿔준다.
                 temp_array = gray_image.reshape(1, input_size).astype(np.float32)
 
-                filename = "./images/bebop2/test_image_%06d.jpg" % frame
+                img_filename = "./{}/test_image_{:06d}.jpg".format(dir_img, frame)
 
                 # get input from pilot
                 for event in pygame.event.get():
@@ -119,8 +127,8 @@ def control_and_collect(bebopVision, args):
                             saved_frame += 1
                             X = np.vstack((X, temp_array))  # np.vstack 은 위에서 아래로 순차적으로 쌓이는 스택이다.
                             y = np.vstack((y, k[0]))        # 전진은 N x N 단위 행렬에서 첫번째 행을 부여한다. 즉 [ 1, 0, ... , 0]
-                            bebop.fly_direct(roll=0, pitch=40, yaw=0, vertical_movement=0, duration=0.1)    # 드론 제어 코드 (전진)
-                            cv2.imwrite(filename, gray_image) # cv2로 gray image 저장
+                            # bebop.fly_direct(roll=0, pitch=40, yaw=0, vertical_movement=0, duration=0.1)    # 드론 제어 코드 (전진)
+                            cv2.imwrite(img_filename, gray_image) # cv2로 gray image 저장
 
 
                         elif key_input[pygame.K_DOWN]:
@@ -128,8 +136,8 @@ def control_and_collect(bebopVision, args):
                             saved_frame += 1
                             X = np.vstack((X, temp_array))
                             y = np.vstack((y, k[1]))
-                            bebop.fly_direct(roll=0, pitch=-40, yaw=0, vertical_movement=0, duration=0.1)
-                            cv2.imwrite(filename, gray_image)
+                            # bebop.fly_direct(roll=0, pitch=-40, yaw=0, vertical_movement=0, duration=0.1)
+                            cv2.imwrite(img_filename, gray_image)
 
 
                         elif key_input[pygame.K_RIGHT]:
@@ -137,8 +145,8 @@ def control_and_collect(bebopVision, args):
                             saved_frame += 1
                             X = np.vstack((X, temp_array))
                             y = np.vstack((y, k[2]))
-                            bebop.fly_direct(roll=40, pitch=0, yaw=0, vertical_movement=0, duration=0.1)
-                            cv2.imwrite(filename, gray_image)
+                            # bebop.fly_direct(roll=40, pitch=0, yaw=0, vertical_movement=0, duration=0.1)
+                            cv2.imwrite(img_filename, gray_image)
 
 
                         elif key_input[pygame.K_LEFT]:
@@ -146,8 +154,8 @@ def control_and_collect(bebopVision, args):
                             X = np.vstack((X, temp_array))
                             y = np.vstack((y, k[3]))
                             saved_frame += 1
-                            bebop.fly_direct(roll=-40, pitch=0, yaw=0, vertical_movement=0, duration=0.1)
-                            cv2.imwrite(filename, gray_image)
+                            # bebop.fly_direct(roll=-40, pitch=0, yaw=0, vertical_movement=0, duration=0.1)
+                            cv2.imwrite(img_filename, gray_image)
 
 
                         elif key_input[pygame.K_w]:
@@ -155,8 +163,8 @@ def control_and_collect(bebopVision, args):
                             X = np.vstack((X, temp_array))
                             y = np.vstack((y, k[4]))
                             saved_frame += 1
-                            bebop.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=15, duration=0.1)
-                            cv2.imwrite(filename, gray_image)
+                            # bebop.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=15, duration=0.1)
+                            cv2.imwrite(img_filename, gray_image)
 
 
                         elif key_input[pygame.K_s]:
@@ -164,8 +172,8 @@ def control_and_collect(bebopVision, args):
                             X = np.vstack((X, temp_array))
                             y = np.vstack((y, k[5]))
                             saved_frame += 1
-                            bebop.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=-15, duration=0.1)
-                            cv2.imwrite(filename, gray_image)
+                            # bebop.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=-15, duration=0.1)
+                            cv2.imwrite(img_filename, gray_image)
 
 
                         elif key_input[pygame.K_d]:
@@ -173,8 +181,8 @@ def control_and_collect(bebopVision, args):
                             X = np.vstack((X, temp_array))
                             y = np.vstack((y, k[6]))
                             saved_frame += 1
-                            bebop.fly_direct(roll=0, pitch=0, yaw=100, vertical_movement=-0, duration=0.1)
-                            cv2.imwrite(filename, gray_image)
+                            # bebop.fly_direct(roll=0, pitch=0, yaw=100, vertical_movement=-0, duration=0.1)
+                            cv2.imwrite(img_filename, gray_image)
 
 
                         elif key_input[pygame.K_a]:
@@ -182,8 +190,8 @@ def control_and_collect(bebopVision, args):
                             X = np.vstack((X, temp_array))
                             y = np.vstack((y, k[7]))
                             saved_frame += 1
-                            bebop.fly_direct(roll=0, pitch=0, yaw=-100, vertical_movement=0, duration=0.1)
-                            cv2.imwrite(filename, gray_image)
+                            # bebop.fly_direct(roll=0, pitch=0, yaw=-100, vertical_movement=0, duration=0.1)
+                            cv2.imwrite(img_filename, gray_image)
 
 
                         elif key_input[pygame.K_q]: # q 를 입력하면 break로 for문을 탈출 하고 이후 False로 while문을 탈출
@@ -206,15 +214,14 @@ def control_and_collect(bebopVision, args):
                 total_frame += 1
 
         # land
-        bebop.safe_land(5)
+        # bebop.safe_land(5)
 
         # save data as a numpy file
-        file_name = str(int(time.time()))
-        directory = "training_dataset"
-        if not os.path.exists(directory):
-            os.makedirs(directory)
+        dir_dataset = "training_dataset"
+        if not os.path.exists(dir_dataset):
+            os.makedirs(dir_dataset)
         try:
-            np.savez(directory + '/' + file_name + '.npz', train=X, train_labels=y) # 수집한 데이터의 칼럼명을 주고 npz로 저장한다.
+            np.savez(dir_dataset + '/' + file_name + '.npz', train=X, train_labels=y) # 수집한 데이터의 칼럼명을 주고 npz로 저장한다.
         except IOError as e:
             print(e)
 
