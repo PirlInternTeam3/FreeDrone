@@ -27,12 +27,12 @@ class UserVision:
     def save_pictures(self, args):
 
         print("saving picture")
-        self.img = self.vision.get_latest_valid_picture()
+        img = self.vision.get_latest_valid_picture()
 
-        if (self.img is not None):
-            filename = "./images/bebop2/test_image_%06d.jpg" % self.index
+        if (img is not None):
+            filename = "./images/bebop2/test/test_image_%06d.jpg" % self.index
             print("filename:", filename)
-            # cv2.imwrite(filename, self.img)
+            cv2.imwrite(filename, img)
             self.index += 1
         else:
             print("No img...")
@@ -87,10 +87,6 @@ def control_and_collect(bebopVision, args):
 
         file_name = str(int(time.time()))
 
-        dir_img = "images/bebop2/" + file_name
-        if not os.path.exists(dir_img):
-            os.makedirs(dir_img)
-
         # q 입력 받았을 때 while 문 탈출을 위한 loop 변수 선언
         loop = True
 
@@ -103,6 +99,10 @@ def control_and_collect(bebopVision, args):
 
             # OpenCV 는 이미지를 None 으로 표시하는 버그가 있으므로, 조건문을 삽입해 None 이 아닐 경우에만 제어 및 데이터 수집 실시
             if (b_img is not None):
+
+                dir_img = "images/bebop2/" + file_name
+                if not os.path.exists(dir_img):
+                    os.makedirs(dir_img)
 
                 # b_img 는 차원이 (480, 856, 3) 인 RGB 이미지 이므로 gray-scale 로 변환해 (480, 856) 으로 바꿔준다.
                 # 이 과정을 거쳐야 X 에 크기가 맞아서 삽입될 수 있다.
@@ -256,6 +256,7 @@ if __name__ == "__main__":
         # start up the video
         bebopVision = DroneVisionGUI(bebop, is_bebop=True, user_code_to_run=control_and_collect, user_args=(bebop,))
         userVision = UserVision(bebopVision)
+        bebopVision.set_user_callback_function(userVision.save_pictures, user_callback_args=None)
         bebopVision.open_video()
 
     else:

@@ -16,7 +16,7 @@ width = 856
 input_size = height * width  # height * width
 num_classes = 8  # number of classes
 
-def load_data(path = './training_data/*.npz', random_state = 42):
+def load_data(path = './training_dataset/*.npz', random_state = 42):
     x_train = np.empty((0, height, width, 1))
     y_train = np.empty((0, num_classes))
     training_data = glob.glob(path)
@@ -42,13 +42,14 @@ def show_data(x, y):
     plt_col = 5
     plt.rcParams["figure.figsize"] = (10, 10)
 
-    f, axarr = plt.subplots(plt_row, plt_col)
+    f, axarr = plt.subplots(plt_row, plt_col) # figure, axis
 
     for i in range(plt_row * plt_col):
 
         sub_plt = axarr[int(i / plt_row), int(i % plt_col)]
         sub_plt.axis('off')
         sub_plt.imshow(x[i].reshape(height, width))
+
 
         label = np.argmax(y[i])
 
@@ -106,7 +107,7 @@ class NeuralNetwork():
         self.hist = self.model.fit(x_train, y_train, epochs=self.epochs, batch_size=self.batch_size, validation_split=self.split_ratio, verbose=2)
 
 
-    def show_resualt(self):
+    def show_result(self):
         plt.subplot(1, 2, 1)
         plt.title('model loss')
         plt.plot(self.hist.history['loss'], label="loss")
@@ -270,7 +271,7 @@ class NeuralNetwork():
         # init = 'he_normal'
         init = 'he_uniform'
         chanDim = -1
-        classes = 3
+        classes = 8
 
         model = Sequential()
 
@@ -300,3 +301,8 @@ class NeuralNetwork():
         model.add(Dense(classes, activation='softmax'))
 
         self.model = model
+
+    def create_mobile_net(self, raw=height, column=width, channel=1):
+        # model setting
+
+        inputShape = (raw, column, channel)

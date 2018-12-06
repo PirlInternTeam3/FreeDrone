@@ -8,6 +8,7 @@ training_data = glob.glob(path)
 height = 480
 width = 856
 
+# load data
 for single_npz in training_data:
         with np.load(single_npz) as data:
             x = data['train']
@@ -15,7 +16,8 @@ for single_npz in training_data:
             print(x)
             print(y)
 
-def test_img_label(index):
+#show img and label
+def show_img_label(index):
 
     plt.imshow(x[index].reshape(height, width))
 
@@ -42,5 +44,8 @@ def test_img_label(index):
     plt.title(sub_plt_title)
     plt.show()
 
-# 44 번 이미지 테스트 해보기
-test_img_label(44)
+
+# 0번~끝까지 이미지 테스트 해보기
+
+for i in range(len(y)):
+    show_img_label(i)
