@@ -10,7 +10,6 @@ import threading
 import cv2
 import time
 import numpy as np
-import pygame
 import os
 
 import argparse
@@ -88,11 +87,11 @@ def tracking_target(bebopVision, args):
 
     global tracker, initialize
 
-    # 윈도우 이름설정, 리사이즈
-    cv2.namedWindow('Webcam', cv2.WINDOW_NORMAL)
-    cv2.resizeWindow('Webcam', width, height)
+    # # 윈도우 이름설정, 리사이즈
+    # cv2.namedWindow('Webcam', cv2.WINDOW_NORMAL)
+    # cv2.resizeWindow('Webcam', width, height)
 
-    # 초기화
+
     cv2.setMouseCallback('Webcam', on_mouse, 0)
 
     bebop = args[0]
@@ -101,95 +100,92 @@ def tracking_target(bebopVision, args):
 
     # 이륙
     # bebop.safe_takeoff(5)
+    #
+    # # 동작 전 대기 시간
+    # bebop.smart_sleep(20)
 
-    # 동작 전 대기 시간
-    # bebop.smart_sleep(5)
+    # 초기화
+    while True:
+        b_img = bebopVision.img
 
-    if (bebopVision.vision_running):
-        # 현재 프레임 카운트 저장
-        frame = 1
-
-        while True:
-            # DroneVisionGUI 클래스에서 img 변수를 생성하고 할당해줘서 버퍼의 이미지를 계속 가져온다.
-            b_img = bebopVision.img.copy()
-
-            # OpenCV 는 이미지를 None 으로 표시하는 버그가 있으므로, 조건문을 삽입해 None 이 아닐 경우에만 제어 및 데이터 수집 실시
-            if (b_img is not None):
-
-                # 최초 초기화 결과 false 지만 드래그하는것에 따라 박스 생성.
-                # 최초 ROI
-                if mousedown:
-                    cv2.rectangle(b_img,
-                                  (int(boxToDraw[0]), int(boxToDraw[1])),  # point 1
-                                  (int(boxToDraw[2]), int(boxToDraw[3])),  # point 2
-                                  [0, 0, 255], PADDING)  # Color B G R 순서 , Thickness
-                    if RECORD:
-                        cv2.circle(b_img, (int(drawnBox[2]), int(drawnBox[3])), 10, [255, 0, 0], 4)
+        if mousedown:
+            cv2.rectangle(b_img,
+                          (int(boxToDraw[0]), int(boxToDraw[1])),  # point 1
+                          (int(boxToDraw[2]), int(boxToDraw[3])),  # point 2
+                          [0, 0, 255], PADDING)  # Color B G R 순서 , Thickness
+            if RECORD:
+                cv2.circle(b_img, (int(drawnBox[2]), int(drawnBox[3])), 10, [255, 0, 0], 4)
 
 
-                # 마우스 좌클릭을 떼고나면
-                elif mouseupdown:
-                    if initialize:
-                        outputBoxToDraw = tracker.track('webcam', b_img[:, :, ::-1], boxToDraw)
-                        initialize = False
-                    else:
-                        outputBoxToDraw = tracker.track('webcam', b_img[:, :, ::-1])
+        # 마우스 좌클릭을 떼고나면
+        elif mouseupdown:
+            if initialize:
+                outputBoxToDraw = tracker.track('Webcam', b_img[:, :, ::-1], boxToDraw)
+                initialize = False
+            else:
+                outputBoxToDraw = tracker.track('Webcam', b_img[:, :, ::-1])
 
-                    # ROI 트래킹 유지
-                    cv2.rectangle(b_img,
-                                  (int(outputBoxToDraw[0]), int(outputBoxToDraw[1])),
-                                  (int(outputBoxToDraw[2]), int(outputBoxToDraw[3])),
-                                  color=[0, 0, 255], thickness=PADDING)
+            # ROI 트래킹 유지
+            cv2.rectangle(b_img,
+                          (int(outputBoxToDraw[0]), int(outputBoxToDraw[1])),
+                          (int(outputBoxToDraw[2]), int(outputBoxToDraw[3])),
+                          color=[0, 0, 255], thickness=PADDING)
 
-                    target_centroid = (int(outputBoxToDraw[0] + (outputBoxToDraw[2] - outputBoxToDraw[0]) / 2),
-                                       int(outputBoxToDraw[1] + (outputBoxToDraw[3] - outputBoxToDraw[1]) / 2))
+            target_centroid = (int(outputBoxToDraw[0] + (outputBoxToDraw[2] - outputBoxToDraw[0]) / 2),
+                               int(outputBoxToDraw[1] + (outputBoxToDraw[3] - outputBoxToDraw[1]) / 2))
 
-                    cv2.circle(b_img, target_centroid, radius=4, color=[0, 0, 255], thickness=PADDING)
-                    cv2.circle(b_img, drone_centroid, radius=4, color=[255, 0, 0], thickness=PADDING)
-                    cv2.arrowedLine(b_img, drone_centroid, target_centroid,
-                                    color=[255, 0, 0], thickness=4)
+            cv2.circle(b_img, target_centroid, radius=4, color=[0, 0, 255], thickness=PADDING)
+            cv2.circle(b_img, drone_centroid, radius=4, color=[255, 0, 0], thickness=PADDING)
+            cv2.arrowedLine(b_img, drone_centroid, target_centroid,
+                            color=[255, 0, 0], thickness=4)
 
-                    dst = distance.euclidean(drone_centroid, target_centroid)
+            dst = distance.euclidean(drone_centroid, target_centroid)
 
-                    print(dst)
+            # print(dst)
 
-                    if dst > 10:
-                        # 우하단
-                        if drone_centroid[0] <= target_centroid[0] and drone_centroid[1] <= target_centroid[1]:
-                            print("dst: {}, pitch: {}/s, yaw: {}/s, vertical: {}/s".format(dst, dst / 10, dst / 10,
-                                                                                           -dst / 30))
-                        # 우상단
-                        elif drone_centroid[0] <= target_centroid[0] and drone_centroid[1] > target_centroid[1]:
-                            print("dst: {}, pitch: {}/s, yaw: {}/s, vertical: {}/s".format(dst, dst / 10, dst / 10,
-                                                                                           dst / 30))
-                        # 좌하단
-                        elif drone_centroid[0] > target_centroid[0] and drone_centroid[1] <= target_centroid[1]:
-                            print("dst: {}, pitch: {}/s, yaw: {}/s, vertical: {}/s".format(dst, dst / 10, -dst / 10,
-                                                                                           -dst / 30))
-                        # 좌상단
-                        elif drone_centroid[0] > target_centroid[0] and drone_centroid[1] > target_centroid[1]:
-                            print("dst: {}, pitch: {}/s, yaw: {}/s, vertical: {}/s".format(dst, dst / 10, -dst / 10,
-                                                                                           dst / 30))
-                    else:
-                        print("dst: {}, pitch: {}/s, yaw: {}/s, vertical: {}/s".format(dst, 0 / 10, 0 / 10, 0 / 30))
+            if dst > 10:
+                pitch_rate = int(0 / 10)
+                yaw_rate = int(dst / 10)
+                vertical_rate = int(dst / 10)
 
-                cv2.imshow('Webcam', b_img)
+                # 우하단
+                if drone_centroid[0] <= target_centroid[0] and drone_centroid[1] <= target_centroid[1]:
+                    vertical_rate = -vertical_rate
 
-                # ESC버튼 누르면 반복문 탈출
-                keyPressed = cv2.waitKey(1)
-                if keyPressed == 27 or keyPressed == 1048603:
-                    break
+                # 좌하단
+                elif drone_centroid[0] > target_centroid[0] and drone_centroid[1] <= target_centroid[1]:
+                    yaw_rate = -yaw_rate
+                    vertical_rate = -vertical_rate
 
-                frame += 1
+                # 좌상단
+                elif drone_centroid[0] > target_centroid[0] and drone_centroid[1] > target_centroid[1]:
+                    yaw_rate = -yaw_rate
 
-            # cv2 종료
-            cv2.destroyAllWindows()
+                # print("dst: {}, pitch: {}/s, yaw: {}/s, vertical: {}/s".format(dst, pitch_rate, yaw_rate, vertical_rate))
+                # bebop.fly_direct(roll=0, pitch=pitch_rate, yaw=yaw_rate, vertical_movement=vertical_rate, duration=1)
 
-        # land
-        # bebop.safe_land(5)
 
-        print("Finishing demo and stopping vision")
-        bebopVision.close_video()
+            else:
+                pitch_rate = int(0 / 10)
+                yaw_rate = int(0 / 10)
+                vertical_rate = int(0 / 10)
+                # print("dst: {}, pitch: {}/s, yaw: {}/s, vertical: {}/s".format(dst, pitch_rate, yaw_rate, vertical_rate))
+                # bebop.fly_direct(roll=0, pitch=pitch_rate, yaw=yaw_rate, vertical_movement=vertical_rate, duration=1)
+
+        cv2.imshow('Webcam', b_img)
+
+        keyPressed = cv2.waitKey(1)
+        if keyPressed == 27 or keyPressed == 1048603:
+            break
+
+    # cv2 종료
+    cv2.destroyAllWindows()
+
+    # land
+    # bebop.safe_land(5)
+
+    print("Finishing demo and stopping vision")
+    bebopVision.close_video()
 
     # disconnect nicely so we don't need a reboot
     print("disconnecting")
