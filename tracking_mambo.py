@@ -21,8 +21,6 @@ from re3_utils.util import bb_util
 from re3_utils.util import im_util
 
 # set this to true if you want to fly for the demo
-testFlying = True
-
 
 height = 360
 width = 640
@@ -88,12 +86,16 @@ def tracking_target(mamboVision, args):
     :return:
     """
 
+    mambo = args[0]
+
+    if args[1] == 't':
+        testFlying = True
+    else :
+        testFlying = False
+
     global tracker, initialize
 
     cv2.setMouseCallback('Webcam', on_mouse, 0)
-
-    mambo = args[0]
-
 
     if (testFlying):
         mambo.safe_takeoff(5)
@@ -139,9 +141,9 @@ def tracking_target(mamboVision, args):
             # vertical_rate = 0
 
             if dst > 10:
-                pitch_rate = int(dst / 10)
+                pitch_rate = int(0 / 10)
                 yaw_rate = int(dst / 10)
-                vertical_rate = int(dst / 10)
+                vertical_rate = int(0 / 10)
 
                 # 우하단
                 if drone_centroid[0] <= target_centroid[0] and drone_centroid[1] <= target_centroid[1]:
@@ -191,7 +193,7 @@ def tracking_target(mamboVision, args):
 
 if __name__ == "__main__":
     # you will need to change this to the address of YOUR mambo
-    mamboAddr = "58:FB:84:3B:12:62"
+    mamboAddr = "64:E5:99:F7:22:4A"
 
     # make Re3 Tracker
     RECORD = False
@@ -212,8 +214,9 @@ if __name__ == "__main__":
         mambo.smart_sleep(1)
 
         print("Preparing to open vision")
+        status = input("input 't' if you want to TAKE OFF or not")
         mamboVision = DroneVisionGUI(mambo, is_bebop=False, buffer_size=200,
-                                     user_code_to_run=tracking_target, user_args=(mambo, ))
+                                     user_code_to_run=tracking_target, user_args=(mambo, status))
         userVision = UserVision(mamboVision)
         #mamboVision.set_user_callback_function(userVision.save_pictures, user_callback_args=None)
         mamboVision.open_video()

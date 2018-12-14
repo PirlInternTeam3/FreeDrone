@@ -100,10 +100,10 @@ def tracking_target(bebopVision, args):
     print("Press 'q' to finish...")
 
     # 이륙
-    # bebop.safe_takeoff(5)
+    bebop.safe_takeoff(5)
     #
     # # 동작 전 대기 시간
-    # bebop.smart_sleep(20)
+    bebop.smart_sleep(20)
 
     # 초기화
     while True:
@@ -146,8 +146,8 @@ def tracking_target(bebopVision, args):
 
             if dst > 10:
                 pitch_rate = int(0 / 10)
-                yaw_rate = int(dst / 30)
-                vertical_rate = int(dst / 10)
+                yaw_rate = int(dst / 10)
+                vertical_rate = int(0 / 10)
 
                 # 우하단
                 if drone_centroid[0] <= target_centroid[0] and drone_centroid[1] <= target_centroid[1]:
@@ -163,7 +163,7 @@ def tracking_target(bebopVision, args):
                     yaw_rate = -yaw_rate
 
                 # print("dst: {}, pitch: {}/s, yaw: {}/s, vertical: {}/s".format(dst, pitch_rate, yaw_rate, vertical_rate))
-                # bebop.fly_direct(roll=0, pitch=pitch_rate, yaw=yaw_rate, vertical_movement=vertical_rate, duration=1)
+                bebop.fly_direct(roll=0, pitch=pitch_rate, yaw=yaw_rate, vertical_movement=vertical_rate, duration=1)
 
 
             else:
@@ -171,7 +171,7 @@ def tracking_target(bebopVision, args):
                 yaw_rate = int(0 / 10)
                 vertical_rate = int(0 / 10)
                 # print("dst: {}, pitch: {}/s, yaw: {}/s, vertical: {}/s".format(dst, pitch_rate, yaw_rate, vertical_rate))
-                # bebop.fly_direct(roll=0, pitch=pitch_rate, yaw=yaw_rate, vertical_movement=vertical_rate, duration=1)
+                bebop.fly_direct(roll=0, pitch=pitch_rate, yaw=yaw_rate, vertical_movement=vertical_rate, duration=1)
 
         cv2.imshow('Webcam', b_img)
 
@@ -183,7 +183,7 @@ def tracking_target(bebopVision, args):
     cv2.destroyAllWindows()
 
     # land
-    # bebop.safe_land(5)
+    bebop.safe_land(5)
 
     print("Finishing demo and stopping vision")
     bebopVision.close_video()
