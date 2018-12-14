@@ -1,12 +1,5 @@
-"""
-Demo of the Bebop vision using DroneVisionGUI (relies on libVLC).
-multi-threaded approach than DroneVision
-It is a different
-Author: Amy McGovern
-"""
-from pyparrot.Bebop import Bebop
+from pyparrot.Minidrone import Mambo
 from pyparrot.DroneVisionGUI import DroneVisionGUI
-import threading
 import cv2
 
 import time
@@ -27,9 +20,12 @@ from re3_utils.util import drawing
 from re3_utils.util import bb_util
 from re3_utils.util import im_util
 
+# set this to true if you want to fly for the demo
+testFlying = True
 
-height = 480
-width = 856
+
+height = 360
+width = 640
 
 # Tracking을 위한 변수선언
 PADDING = 2
@@ -45,23 +41,24 @@ mousedown = False
 mouseupdown = False
 initialize = False
 
+
 class UserVision:
     def __init__(self, vision):
         self.index = 0
         self.vision = vision
 
     def save_pictures(self, args):
+        # print("in save pictures on image %d " % self.index)
 
-        print("saving picture")
         img = self.vision.get_latest_valid_picture()
 
         if (img is not None):
-            filename = "./images/bebop2/test/test_image_%06d.jpg" % self.index
-            print("filename:", filename)
-            cv2.imwrite(filename, img)
-            self.index += 1
-        else:
-            print("No img...")
+            filename = "./images/mambo/test_image_%06d.png" % self.index
+            # uncomment this if you want to write out images every time you get a new one
+            # cv2.imwrite(filename, img)
+            self.index +=1
+            #print(self.index)
+
 
 def on_mouse(event, x, y, flags, params):
     global mousedown, mouseupdown, drawnBox, boxToDraw, initialize
@@ -84,50 +81,45 @@ def on_mouse(event, x, y, flags, params):
     boxToDraw[[1,3]] = np.sort(boxToDraw[[1,3]])
 
 
-def tracking_target(bebopVision, args):
+def tracking_target(mamboVision, args):
+    """
+    Demo the user code to run with the run button for a mambo
+    :param args:
+    :return:
+    """
 
     global tracker, initialize
 
-    # # 윈도우 이름설정, 리사이즈
-    # cv2.namedWindow('Webcam', cv2.WINDOW_NORMAL)
-    # cv2.resizeWindow('Webcam', width, height)
-
-
     cv2.setMouseCallback('Webcam', on_mouse, 0)
 
-    bebop = args[0]
+    mambo = args[0]
 
-    print("Press 'q' to finish...")
 
-    # 이륙
-    # bebop.safe_takeoff(5)
-    #
-    # # 동작 전 대기 시간
-    # bebop.smart_sleep(20)
+    if (testFlying):
+        mambo.safe_takeoff(5)
 
-    # 초기화
     while True:
-        b_img = bebopVision.img.copy()
+        mambo_img = mamboVision.img.copy()
 
         if mousedown:
-            cv2.rectangle(b_img,
+            cv2.rectangle(mambo_img,
                           (int(boxToDraw[0]), int(boxToDraw[1])),  # point 1
                           (int(boxToDraw[2]), int(boxToDraw[3])),  # point 2
                           [0, 0, 255], PADDING)  # Color B G R 순서 , Thickness
             if RECORD:
-                cv2.circle(b_img, (int(drawnBox[2]), int(drawnBox[3])), 10, [255, 0, 0], 4)
+                cv2.circle(mambo_img, (int(drawnBox[2]), int(drawnBox[3])), 10, [255, 0, 0], 4)
 
-
-        # 마우스 좌클릭을 떼고나면
+            # 마우스 좌클릭을 떼고나면
         elif mouseupdown:
             if initialize:
-                outputBoxToDraw = tracker.track('Webcam', b_img[:, :, ::-1], boxToDraw)
+                outputBoxToDraw = tracker.track('Webcam', mambo_img[:, :, ::-1], boxToDraw)
                 initialize = False
             else:
-                outputBoxToDraw = tracker.track('Webcam', b_img[:, :, ::-1])
+                outputBoxToDraw = tracker.track('Webcam', mambo_img[:, :, ::-1])
+
 
             # ROI 트래킹 유지
-            cv2.rectangle(b_img,
+            cv2.rectangle(mambo_img,
                           (int(outputBoxToDraw[0]), int(outputBoxToDraw[1])),
                           (int(outputBoxToDraw[2]), int(outputBoxToDraw[3])),
                           color=[0, 0, 255], thickness=PADDING)
@@ -135,18 +127,20 @@ def tracking_target(bebopVision, args):
             target_centroid = (int(outputBoxToDraw[0] + (outputBoxToDraw[2] - outputBoxToDraw[0]) / 2),
                                int(outputBoxToDraw[1] + (outputBoxToDraw[3] - outputBoxToDraw[1]) / 2))
 
-            cv2.circle(b_img, target_centroid, radius=4, color=[0, 0, 255], thickness=PADDING)
-            cv2.circle(b_img, drone_centroid, radius=4, color=[255, 0, 0], thickness=PADDING)
-            cv2.arrowedLine(b_img, drone_centroid, target_centroid,
+            cv2.circle(mambo_img, target_centroid, radius=4, color=[0, 0, 255], thickness=PADDING)
+            cv2.circle(mambo_img, drone_centroid, radius=4, color=[255, 0, 0], thickness=PADDING)
+            cv2.arrowedLine(mambo_img, drone_centroid, target_centroid,
                             color=[255, 0, 0], thickness=4)
 
             dst = distance.euclidean(drone_centroid, target_centroid)
 
-            # print(dst)
+            # pitch_rate = 0
+            # yaw_rate = 0
+            # vertical_rate = 0
 
             if dst > 10:
-                pitch_rate = int(0 / 10)
-                yaw_rate = int(dst / 30)
+                pitch_rate = int(dst / 10)
+                yaw_rate = int(dst / 10)
                 vertical_rate = int(dst / 10)
 
                 # 우하단
@@ -162,55 +156,64 @@ def tracking_target(bebopVision, args):
                 elif drone_centroid[0] > target_centroid[0] and drone_centroid[1] > target_centroid[1]:
                     yaw_rate = -yaw_rate
 
-                # print("dst: {}, pitch: {}/s, yaw: {}/s, vertical: {}/s".format(dst, pitch_rate, yaw_rate, vertical_rate))
-                # bebop.fly_direct(roll=0, pitch=pitch_rate, yaw=yaw_rate, vertical_movement=vertical_rate, duration=1)
-
-
             else:
                 pitch_rate = int(0 / 10)
                 yaw_rate = int(0 / 10)
                 vertical_rate = int(0 / 10)
-                # print("dst: {}, pitch: {}/s, yaw: {}/s, vertical: {}/s".format(dst, pitch_rate, yaw_rate, vertical_rate))
-                # bebop.fly_direct(roll=0, pitch=pitch_rate, yaw=yaw_rate, vertical_movement=vertical_rate, duration=1)
 
-        cv2.imshow('Webcam', b_img)
+            print("dst: {}, pitch: {}/s, yaw: {}/s, vertical: {}/s".format(dst, pitch_rate, yaw_rate, vertical_rate))
 
-        keyPressed = cv2.waitKey(1)
-        if keyPressed == 27 or keyPressed == 1048603:
+            if (testFlying):
+                mambo.fly_direct(roll=0, pitch=pitch_rate, yaw=yaw_rate, vertical_movement=vertical_rate, duration=1)
+
+        cv2.imshow('Webcam', mambo_img)
+
+        keyPressed = cv2.waitKey(1) and 0xFF
+        if keyPressed == ord("q"):
             break
 
-    # cv2 종료
+        # cv2 종료
     cv2.destroyAllWindows()
 
     # land
-    # bebop.safe_land(5)
+    if (testFlying):
+        mambo.safe_land(5)
 
-    print("Finishing demo and stopping vision")
-    bebopVision.close_video()
+    # done doing vision demo
+    print("Ending the sleep and vision")
+    mamboVision.close_video()
 
-    # disconnect nicely so we don't need a reboot
+    mambo.smart_sleep(5)
+
     print("disconnecting")
-    bebop.disconnect()
+    mambo.disconnect()
 
 
 if __name__ == "__main__":
-    # make my bebop object
-    bebop = Bebop()
+    # you will need to change this to the address of YOUR mambo
+    mamboAddr = "58:FB:84:3B:12:62"
 
     # make Re3 Tracker
     RECORD = False
     tracker = re3_tracker.Re3Tracker()
 
-    # connect to the bebop
-    success = bebop.connect(5)
-    bebop.set_picture_format('jpeg')    # 영상 포맷 변경
+    # make my mambo object
+    # remember to set True/False for the wifi depending on if you are using the wifi or the BLE to connect
+    mambo = Mambo(mamboAddr, use_wifi=True)
+    print("trying to connect to mambo now")
+    success = mambo.connect(num_retries=3)
+    print("connected: %s" % success)
 
     if (success):
-        # start up the video
-        bebopVision = DroneVisionGUI(bebop, is_bebop=True, user_code_to_run=tracking_target, user_args=(bebop,))
-        userVision = UserVision(bebopVision)
-        #bebopVision.set_user_callback_function(userVision.save_pictures, user_callback_args=None)
-        bebopVision.open_video()
+        # get the state information
+        print("sleeping")
+        mambo.smart_sleep(1)
+        mambo.ask_for_state_update()
+        mambo.smart_sleep(1)
 
-    else:
-        print("Error connecting to bebop. Retry")
+        print("Preparing to open vision")
+        mamboVision = DroneVisionGUI(mambo, is_bebop=False, buffer_size=200,
+                                     user_code_to_run=tracking_target, user_args=(mambo, ))
+        userVision = UserVision(mamboVision)
+        #mamboVision.set_user_callback_function(userVision.save_pictures, user_callback_args=None)
+        mamboVision.open_video()
