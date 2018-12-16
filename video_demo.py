@@ -107,15 +107,15 @@ with tf.Session() as sess:
                     # contour를 찾을때 근사치 찾는 방법으로 APPROX_SIMPLE은 contours line을 그릴 수 있는 point 만 저장
                     # Returns:	image, contours , hierachy
 
-                    #img_contours, contours, hierarchy = cv2.findContours(image_roi.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+                    _, contours, hierarchy = cv2.findContours(image_roi.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
 
                     dx = pt2[0] - pt1[0]
                     dy = pt2[1] - pt1[1]
                     target_centroid.append((int(pt1[0] + dx / 2), int(pt1[1] + dy / 2)))
 
-                    cv2.rectangle(result, pt1=pt1, pt2=pt2, color=[0, 0, 255], thickness=PADDING*3)
-                    # cv2.drawContours(img_contours, contours, -1, (0, 0, 255), 5)
+                    # cv2.rectangle(result, pt1=pt1, pt2=pt2, color=[0, 0, 255], thickness=PADDING*3)
+                    cv2.drawContours(result, contours, -1, (0, 0, 255), 5)
                     # area = cv2.contourArea(cnt)
                     # print(area)
 
