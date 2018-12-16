@@ -174,19 +174,19 @@ def tracking_target(droneVision, args):
                         vertical_rate = 0
 
 
-                    if area > 60000:
-                        pitch_rate = -int(400000 / area)
+                    if area > 25*10e3:
+                        pitch_rate = -int(35*10e3 / area)
 
-                    elif area == 60000:
+                    elif area == 25*10e3:
                         pitch_rate = 0
 
-                    elif area < 60000:
-                        pitch_rate = int(400000 / area)
+                    elif area < 25*10e3:
+                        pitch_rate = int(35*10e3 / area)
 
-                    print("Area: {}, Distance: {}, \nPitch: {}/s, Yaw: {}/s, Vertical: {}/s".format(area, dst, pitch_rate, yaw_rate, vertical_rate))
+                    print("Area: {}, Distance: {}, \nPitch: {} degree/s, Yaw: {} degree/s, Vertical: {} degree/s".format(area, dst, pitch_rate, yaw_rate, vertical_rate))
 
                     if (testFlying):
-                        drone.fly_direct(roll=0, pitch=0, yaw=yaw_rate, vertical_movement=0,
+                        drone.fly_direct(roll=0, pitch=pitch_rate, yaw=yaw_rate, vertical_movement=vertical_rate,
                                          duration=0.1)
 
                 except:

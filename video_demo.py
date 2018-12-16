@@ -109,29 +109,35 @@ with tf.Session() as sess:
 
                     _, contours, hierarchy = cv2.findContours(image_roi.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
+                    print(contours)
+                    print(type(contours))
+                    print(len(contours))
 
-                    dx = pt2[0] - pt1[0]
-                    dy = pt2[1] - pt1[1]
-                    target_centroid.append((int(pt1[0] + dx / 2), int(pt1[1] + dy / 2)))
 
-                    # cv2.rectangle(result, pt1=pt1, pt2=pt2, color=[0, 0, 255], thickness=PADDING*3)
-                    cv2.drawContours(result, contours, -1, (0, 0, 255), 5)
-                    # area = cv2.contourArea(cnt)
-                    # print(area)
+                    if contours:
+                        dx = pt2[0] - pt1[0]
+                        dy = pt2[1] - pt1[1]
+                        contours
+                        target_centroid.append((int(pt1[0] + dx / 2), int(pt1[1] + dy / 2)))
 
-                    #######################
-                    # # issue 1
-                    # imgray = cv2.cvtColor(image_roi, cv2.COLOR_BGR2GRAY)
-                    # # threshold를 이용하여 binary image로 변환
-                    # ret, thresh = cv2.threshold(imgray, 127, 255, 0)
-                    # cv2.imshow('thresh_cam', thresh)
-                    # # 해당 영역에서 Red color를 찾는다.
-                    # image_roi = cv2.inRange(image_roi, LOWER_RED_RANGE, UPPER_RED_RANGE)
-                    # # 노이즈를 줄이기 위해 블러링 한다
-                    # image_roi = cv2.medianBlur(image_roi, 11)
-                    # _, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-                    # cv2.drawContours(result, contours, -1, (0, 0, 255), 5)
-                    #######################
+                        # cv2.rectangle(result, pt1=pt1, pt2=pt2, color=[0, 0, 255], thickness=PADDING*3)
+                        cv2.drawContours(result, contours, -1, (0, 0, 255), 5)
+                        # area = cv2.contourArea(cnt)
+                        # print(area)
+
+                        #######################
+                        # # issue 1
+                        # imgray = cv2.cvtColor(image_roi, cv2.COLOR_BGR2GRAY)
+                        # # threshold를 이용하여 binary image로 변환
+                        # ret, thresh = cv2.threshold(imgray, 127, 255, 0)
+                        # cv2.imshow('thresh_cam', thresh)
+                        # # 해당 영역에서 Red color를 찾는다.
+                        # image_roi = cv2.inRange(image_roi, LOWER_RED_RANGE, UPPER_RED_RANGE)
+                        # # 노이즈를 줄이기 위해 블러링 한다
+                        # image_roi = cv2.medianBlur(image_roi, 11)
+                        # _, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+                        # cv2.drawContours(result, contours, -1, (0, 0, 255), 5)
+                        #######################
                 else:
                     print("Nope")
 
