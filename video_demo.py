@@ -11,6 +11,8 @@
 #
 #================================================================
 
+# https://opencv-python.readthedocs.io/en/latest/doc/16.imageContourFeature/imageContourFeature.html
+
 import cv2
 import time
 import numpy as np
@@ -35,7 +37,7 @@ WIDTH = 640
 PADDING = 2
 drone_centroid = (int(WIDTH / 2), int(HEIGHT / 2))
 LOWER_RED_RANGE = np.array([17, 15, 100])
-UPPER_RED_RANGE = np.array([86, 190, 255])
+UPPER_RED_RANGE = np.array([50, 56, 200])
 
 with tf.Session() as sess:
     vid = cv2.VideoCapture(video_path)
@@ -51,7 +53,7 @@ with tf.Session() as sess:
 
 
         boxes, scores, labels = sess.run(output_tensors, feed_dict={input_tensor: np.expand_dims(img_resized, axis=0)})
-
+        # image = utils.draw_boxes(image, boxes, scores, labels, classes, SIZE, show=False)
 
         ##################################################
         #여기부터 수정
@@ -93,41 +95,45 @@ with tf.Session() as sess:
                 # 해당 영역에서 Red color를 찾는다.
                 image_roi = cv2.inRange(image_roi, LOWER_RED_RANGE, UPPER_RED_RANGE)
 
-                # 노이즈를 줄이기 위해 블러링 한다
-                image_roi = cv2.medianBlur(image_roi, 11)
+                if image_roi is not None:
+                    # 노이즈를 줄이기 위해 블러링 한다
+                    image_roi = cv2.medianBlur(image_roi, 11)
 
-                # Find contours and decide if hat is one of them
-                # find contours 함수는 원본 이미지를 직접 수정하기 때문에 원본이미지 보존을 위해 .copy 사용한다.
-                # cv2.RETR_TREE 는 모든 contours line을 찾으며, 모든 hieracy관계를 구성함.
-                # contour를 찾을때 근사치 찾는 방법으로 APPROX_SIMPLE은 contours line을 그릴 수 있는 point 만 저장
-                # Returns:	image, contours , hierachy
+                    cv2.imshow('ROI', image_roi)
 
-                _, contours, hierarchy = cv2.findContours(image_roi.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+                    # Find contours and decide if hat is one of them
+                    # find contours 함수는 원본 이미지를 직접 수정하기 때문에 원본이미지 보존을 위해 .copy 사용한다.
+                    # cv2.RETR_TREE 는 모든 contours line을 찾으며, 모든 hieracy관계를 구성함.
+                    # contour를 찾을때 근사치 찾는 방법으로 APPROX_SIMPLE은 contours line을 그릴 수 있는 point 만 저장
+                    # Returns:	image, contours , hierachy
+
+                    #img_contours, contours, hierarchy = cv2.findContours(image_roi.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
 
-                dx = pt2[0] - pt1[0]
-                dy = pt2[1] - pt1[1]
+                    dx = pt2[0] - pt1[0]
+                    dy = pt2[1] - pt1[1]
+                    target_centroid.append((int(pt1[0] + dx / 2), int(pt1[1] + dy / 2)))
 
-                target_centroid.append((int(pt1[0] + dx / 2), int(pt1[1] + dy / 2)))
+                    cv2.rectangle(result, pt1=pt1, pt2=pt2, color=[0, 0, 255], thickness=PADDING*3)
+                    # cv2.drawContours(img_contours, contours, -1, (0, 0, 255), 5)
+                    # area = cv2.contourArea(cnt)
+                    # print(area)
 
-                cv2.rectangle(result, pt1=pt1, pt2=pt2, color=[0, 0, 255], thickness=PADDING*3)
-
-                # area = cv2.contourArea(cnt)
-                # print(area)
-
-                #######################
-                # # issue 1
-                # imgray = cv2.cvtColor(image_roi, cv2.COLOR_BGR2GRAY)
-                # # threshold를 이용하여 binary image로 변환
-                # ret, thresh = cv2.threshold(imgray, 127, 255, 0)
-                # cv2.imshow('thresh_cam', thresh)
-                # # 해당 영역에서 Red color를 찾는다.
-                # image_roi = cv2.inRange(image_roi, LOWER_RED_RANGE, UPPER_RED_RANGE)
-                # # 노이즈를 줄이기 위해 블러링 한다
-                # image_roi = cv2.medianBlur(image_roi, 11)
-                # _, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-                # cv2.drawContours(result, contours, -1, (0, 0, 255), 5)
-                #######################
+                    #######################
+                    # # issue 1
+                    # imgray = cv2.cvtColor(image_roi, cv2.COLOR_BGR2GRAY)
+                    # # threshold를 이용하여 binary image로 변환
+                    # ret, thresh = cv2.threshold(imgray, 127, 255, 0)
+                    # cv2.imshow('thresh_cam', thresh)
+                    # # 해당 영역에서 Red color를 찾는다.
+                    # image_roi = cv2.inRange(image_roi, LOWER_RED_RANGE, UPPER_RED_RANGE)
+                    # # 노이즈를 줄이기 위해 블러링 한다
+                    # image_roi = cv2.medianBlur(image_roi, 11)
+                    # _, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+                    # cv2.drawContours(result, contours, -1, (0, 0, 255), 5)
+                    #######################
+                else:
+                    print("Nope")
 
             except:
                 print("No Person with Red")
