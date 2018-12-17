@@ -11,12 +11,12 @@ import glob
 from sklearn.model_selection import train_test_split
 from matplotlib import pyplot as plt
 
-height = 480
-width = 856
+height = 360
+width = 640
 input_size = height * width  # height * width
-num_classes = 8  # number of classes
+num_classes = 3  # number of classes
 
-def load_data(path = './training_dataset/*.npz', random_state = 42):
+def load_data(path = './cnn/training_dataset/*.npz', random_state = 42):
     x_train = np.empty((0, height, width, 1))
     y_train = np.empty((0, num_classes))
     training_data = glob.glob(path)
@@ -56,19 +56,9 @@ def show_data(x, y):
         if label == 0:
             direction = 'Forward'
         elif label == 1:
-            direction = 'Backward'
-        elif label == 2:
             direction = 'Right'
-        elif label == 3:
+        elif label == 2:
             direction = 'Left'
-        elif label == 4:
-            direction = 'Up'
-        elif label == 5:
-            direction = 'Down'
-        elif label == 6:
-            direction = 'Clockwise'
-        elif label == 7:
-            direction = 'Counter Clockwise'
 
         sub_plt_title = str(label) + " : " + direction
         sub_plt.set_title(sub_plt_title)
@@ -271,7 +261,7 @@ class NeuralNetwork():
         # init = 'he_normal'
         init = 'he_uniform'
         chanDim = -1
-        classes = 8
+        classes = 3
 
         model = Sequential()
 

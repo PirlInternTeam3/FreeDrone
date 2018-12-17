@@ -1,10 +1,8 @@
 """
-Demo of the Bebop vision using DroneVisionGUI (relies on libVLC).
-multi-threaded approach than DroneVision
-It is a different
 Author: Amy McGovern
 """
 from pyparrot.Bebop import Bebop
+from pyparrot.Minidrone import Mambo
 from pyparrot.DroneVisionGUI import DroneVisionGUI
 import threading
 import cv2
@@ -12,12 +10,6 @@ import time
 import numpy as np
 import pygame
 import os
-
-height = 480
-width = 856
-input_size = height * width  # height * width
-num_classes = 8  # number of classes
-
 
 class UserVision:
     def __init__(self, vision):
@@ -32,23 +24,29 @@ class UserVision:
         if (img is not None):
             filename = "./images/bebop2/test/test_image_%06d.jpg" % self.index
             print("filename:", filename)
-            cv2.imwrite(filename, img)
+            #cv2.imwrite(filename, img)
             self.index += 1
         else:
             print("No img...")
 
-def control_and_collect(bebopVision, args):
+def control_and_collect(droneVision, args):
 
+    drone = args[0] # drone type
+
+    if args[1] == 't': # flying status
+        testFlying = True
+    else :
+        testFlying = False
 
     # 이 코드를 돌리기 위해선 먼저 인풋 사이즈와 클래스 갯수를 정해줘야 함.
+    input_size = args[2] * args[3] # height * width
+
+    num_classes = args[4] #num_classes
 
     # 클래스의 갯수(N) 만큼 one-hot encoding 해준다 ( N X N 단위행렬 )
     k = np.zeros((num_classes, num_classes), 'float')
     for i in range(num_classes):
         k[i, i] = 1
-
-
-    bebop = args[0]
 
     # initializes Pygame
     pygame.init()
@@ -78,12 +76,14 @@ def control_and_collect(bebopVision, args):
 
 
     # 이륙
-    # bebop.safe_takeoff(5)
+    if (testFlying):
+        drone.safe_takeoff(5)
 
     # 동작 전 대기 시간
-    # bebop.smart_sleep(5)
+    if (testFlying):
+        drone.smart_sleep(5)
 
-    if (bebopVision.vision_running):
+    if (droneVision.vision_running):
 
         file_name = str(int(time.time()))
 
@@ -95,23 +95,23 @@ def control_and_collect(bebopVision, args):
 
         while loop:
             # DroneVisionGUI 클래스에서 img 변수를 생성하고 할당해줘서 버퍼의 이미지를 계속 가져온다.
-            b_img = bebopVision.img
+            drone_img = droneVision.img.copy()
 
             # OpenCV 는 이미지를 None 으로 표시하는 버그가 있으므로, 조건문을 삽입해 None 이 아닐 경우에만 제어 및 데이터 수집 실시
-            if (b_img is not None):
+            if (drone_img is not None):
 
-                dir_img = "images/bebop2/" + file_name
+                dir_img = "cnn/images/drone/" + file_name
                 if not os.path.exists(dir_img):
                     os.makedirs(dir_img)
 
-                # b_img 는 차원이 (480, 856, 3) 인 RGB 이미지 이므로 gray-scale 로 변환해 (480, 856) 으로 바꿔준다.
+                # b_img 는 차원이 (height, width, 3) 인 RGB 이미지 이므로 gray-scale 로 변환해 (height, width) 으로 바꿔준다.
                 # 이 과정을 거쳐야 X 에 크기가 맞아서 삽입될 수 있다.
-                gray_image = cv2.cvtColor(b_img, cv2.COLOR_BGR2GRAY)
+                gray_image = cv2.cvtColor(drone_img, cv2.COLOR_BGR2GRAY)
 
-                # 임시 배열을 만들어 이를 (1, 480 * 856) 차원으로 변환하고, 데이터 타입도 int에서 float 으로 바꿔준다.
+                # 임시 배열을 만들어 이를 (1, height * width) 차원으로 변환하고, 데이터 타입도 int에서 float 으로 바꿔준다.
                 temp_array = gray_image.reshape(1, input_size).astype(np.float32)
 
-                img_filename = "./{}/test_image_{:06d}.jpg".format(dir_img, frame)
+                img_filename = "./{}/test_image_{:08d}.jpg".format(dir_img, frame)
 
                 # get input from pilot
                 for event in pygame.event.get():
@@ -127,71 +127,55 @@ def control_and_collect(bebopVision, args):
                             saved_frame += 1
                             X = np.vstack((X, temp_array))  # np.vstack 은 위에서 아래로 순차적으로 쌓이는 스택이다.
                             y = np.vstack((y, k[0]))        # 전진은 N x N 단위 행렬에서 첫번째 행을 부여한다. 즉 [ 1, 0, ... , 0]
-                            # bebop.fly_direct(roll=0, pitch=40, yaw=0, vertical_movement=0, duration=0.1)    # 드론 제어 코드 (전진)
+                            if (testFlying):
+                                drone.fly_direct(roll=0, pitch=10, yaw=0, vertical_movement=0, duration=0.1)    # 드론 제어 코드 (전진)
                             cv2.imwrite(img_filename, gray_image) # cv2로 gray image 저장
-
-
-                        elif key_input[pygame.K_DOWN]:
-                            print("Backward")
-                            saved_frame += 1
-                            X = np.vstack((X, temp_array))
-                            y = np.vstack((y, k[1]))
-                            # bebop.fly_direct(roll=0, pitch=-40, yaw=0, vertical_movement=0, duration=0.1)
-                            cv2.imwrite(img_filename, gray_image)
-
 
                         elif key_input[pygame.K_RIGHT]:
                             print("Right")
                             saved_frame += 1
                             X = np.vstack((X, temp_array))
-                            y = np.vstack((y, k[2]))
-                            # bebop.fly_direct(roll=40, pitch=0, yaw=0, vertical_movement=0, duration=0.1)
+                            y = np.vstack((y, k[1]))
+                            if (testFlying):
+                                drone.fly_direct(roll=10, pitch=0, yaw=0, vertical_movement=0, duration=0.1)
                             cv2.imwrite(img_filename, gray_image)
-
 
                         elif key_input[pygame.K_LEFT]:
                             print("Left")
                             X = np.vstack((X, temp_array))
-                            y = np.vstack((y, k[3]))
+                            y = np.vstack((y, k[2]))
                             saved_frame += 1
-                            # bebop.fly_direct(roll=-40, pitch=0, yaw=0, vertical_movement=0, duration=0.1)
+                            if (testFlying):
+                                drone.fly_direct(roll=-10, pitch=0, yaw=0, vertical_movement=0, duration=0.1)
                             cv2.imwrite(img_filename, gray_image)
 
+                        elif key_input[pygame.K_DOWN]:
+                            print("Backward")
+                            if (testFlying):
+                                drone.fly_direct(roll=0, pitch=-10, yaw=0, vertical_movement=0, duration=0.1)
 
                         elif key_input[pygame.K_w]:
                             print("Up")
-                            X = np.vstack((X, temp_array))
-                            y = np.vstack((y, k[4]))
-                            saved_frame += 1
-                            # bebop.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=15, duration=0.1)
-                            cv2.imwrite(img_filename, gray_image)
+                            if (testFlying):
+                                drone.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=10, duration=0.1)
 
 
                         elif key_input[pygame.K_s]:
                             print("Down")
-                            X = np.vstack((X, temp_array))
-                            y = np.vstack((y, k[5]))
-                            saved_frame += 1
-                            # bebop.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=-15, duration=0.1)
-                            cv2.imwrite(img_filename, gray_image)
+                            if (testFlying):
+                                drone.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=-10, duration=0.1)
 
 
                         elif key_input[pygame.K_d]:
                             print("Clockwise")
-                            X = np.vstack((X, temp_array))
-                            y = np.vstack((y, k[6]))
-                            saved_frame += 1
-                            # bebop.fly_direct(roll=0, pitch=0, yaw=100, vertical_movement=-0, duration=0.1)
-                            cv2.imwrite(img_filename, gray_image)
+                            if (testFlying):
+                                drone.fly_direct(roll=0, pitch=0, yaw=30, vertical_movement=-0, duration=0.1)
 
 
                         elif key_input[pygame.K_a]:
                             print("Counter Clockwise")
-                            X = np.vstack((X, temp_array))
-                            y = np.vstack((y, k[7]))
-                            saved_frame += 1
-                            # bebop.fly_direct(roll=0, pitch=0, yaw=-100, vertical_movement=0, duration=0.1)
-                            cv2.imwrite(img_filename, gray_image)
+                            if (testFlying):
+                                drone.fly_direct(roll=0, pitch=0, yaw=-30, vertical_movement=0, duration=0.1)
 
 
                         elif key_input[pygame.K_q]: # q 를 입력하면 break로 for문을 탈출 하고 이후 False로 while문을 탈출
@@ -204,20 +188,15 @@ def control_and_collect(bebopVision, args):
                             X = np.empty((0, input_size))
                             y = np.empty((0, num_classes))
 
-
-                    # if any key is released
-                    elif event.type == pygame.KEYUP:
-                        # prints on the console the released key
-                        print(u'key released')
-
                 frame += 1
                 total_frame += 1
 
         # land
-        # bebop.safe_land(5)
+        if (testFlying):
+            drone.safe_land(5)
 
         # save data as a numpy file
-        dir_dataset = "training_dataset"
+        dir_dataset = "cnn/training_dataset"
         if not os.path.exists(dir_dataset):
             os.makedirs(dir_dataset)
         try:
@@ -228,7 +207,6 @@ def control_and_collect(bebopVision, args):
         end = cv2.getTickCount()
         # calculate streaming duration
         print("Streaming duration: , %.2fs" % ((end - start) / cv2.getTickFrequency()))
-
         print(X.shape)
         print(y.shape)
         print("Total frame: ", total_frame)
@@ -237,27 +215,47 @@ def control_and_collect(bebopVision, args):
 
 
         print("Finishing demo and stopping vision")
-        bebopVision.close_video()
+        droneVision.close_video()
 
     # disconnect nicely so we don't need a reboot
     print("disconnecting")
-    bebop.disconnect()
+    drone.disconnect()
 
 
 if __name__ == "__main__":
-    # make my bebop object
-    bebop = Bebop()
 
-    # connect to the bebop
-    success = bebop.connect(5)
-    bebop.set_picture_format('jpeg')    # 영상 포맷 변경
+    drone_type = input("Input drone type bebop 'b' or mambo 'm' : ")
+
+    num_classes = 3  # number of classes
+
+    if drone_type == 'b':
+        drone = Bebop()
+        success = drone.connect(5)
+        drone.set_picture_format('jpeg')  # 영상 포맷 변경
+        is_bebop = True
+        height = 480
+        width = 856
+
+    elif drone_type == 'm':
+        mamboAddr = "64:E5:99:F7:22:4A"
+        drone = Mambo(mamboAddr, use_wifi=True)
+        success = drone.connect(num_retries=3)
+        is_bebop = False
+        height = 360
+        width = 640
+        # drone.set_max_tilt()
 
     if (success):
-        # start up the video
-        bebopVision = DroneVisionGUI(bebop, is_bebop=True, user_code_to_run=control_and_collect, user_args=(bebop,))
-        userVision = UserVision(bebopVision)
-        bebopVision.set_user_callback_function(userVision.save_pictures, user_callback_args=None)
-        bebopVision.open_video()
+        # get the state information
+        print("sleeping")
+        drone.smart_sleep(1)
+        drone.ask_for_state_update()
+        drone.smart_sleep(1)
+        print("Preparing to open vision")
 
-    else:
-        print("Error connecting to bebop. Retry")
+        status = input("Input 't' if you want to TAKE-OFF or not : ")
+        droneVision = DroneVisionGUI(drone, is_bebop=is_bebop, buffer_size=200, user_code_to_run=control_and_collect,
+                                     user_args=(drone, status, height, width, num_classes))
+        userVision = UserVision(droneVision)
+        # droneVision.set_user_callback_function(userVision.save_pictures, user_callback_args=None)
+        droneVision.open_video()

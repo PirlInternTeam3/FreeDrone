@@ -2,11 +2,11 @@ import glob
 import numpy as np
 from matplotlib import pyplot as plt
 
-path = './training_dataset/*.npz'
+path = './cnn/training_dataset/*.npz'
 training_data = glob.glob(path)
 
-height = 480
-width = 856
+height = 360
+width = 640
 
 # load data
 for single_npz in training_data:
@@ -26,19 +26,9 @@ def show_img_label(index):
     if label == 0:
         direction = 'Forward'
     elif label == 1:
-        direction = 'Backward'
-    elif label == 2:
         direction = 'Right'
-    elif label == 3:
+    elif label == 2:
         direction = 'Left'
-    elif label == 4:
-        direction = 'Up'
-    elif label == 5:
-        direction = 'Down'
-    elif label == 6:
-        direction = 'Clockwise'
-    elif label == 7:
-        direction = 'Counter Clockwise'
 
     sub_plt_title = str(label) + " : " + direction
     plt.title(sub_plt_title)

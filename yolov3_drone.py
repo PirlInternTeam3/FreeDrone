@@ -224,7 +224,7 @@ def tracking_target(droneVision, args):
 
 if __name__ == "__main__":
 
-    drone_type = input("Input drone type 'bebop', 'mambo : ")
+    drone_type = input("Input drone type 'bebop' or 'mambo : ")
 
     if drone_type == 'bebop':
         drone = Bebop()
@@ -236,7 +236,7 @@ if __name__ == "__main__":
         drone = Mambo(mamboAddr, use_wifi=True)
         success = drone.connect(num_retries=3)
         is_bebop = False
-
+        #drone.set_max_tilt()
     if (success):
         # get the state information
         print("sleeping")
