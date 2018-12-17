@@ -9,12 +9,12 @@ input_size = height * width
 
 model = NeuralNetwork()
 
-model.load_model(path = './model_data/test_model1.h5')
+model.load_model(path = './cnn/model/model_1545050763.h5')
 
 while True:
-    img_file = input("파일 입력")
+    img_number = input("파일 입력")
 
-    test_img = cv2.imread('./cnn/images/drone/1545047947/'+img_file+'.jpg')
+    test_img = cv2.imread('./cnn/training_images/1545050306/test_image_'+img_number+'.jpg')
 
     gray_test_img = cv2.cvtColor(test_img, cv2.COLOR_BGR2GRAY)
 

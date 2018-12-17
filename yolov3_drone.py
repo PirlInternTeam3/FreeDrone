@@ -11,10 +11,6 @@ from pyparrot.Minidrone import Mambo
 from pyparrot.Bebop import Bebop
 from pyparrot.DroneVisionGUI import DroneVisionGUI
 
-import os
-import sys
-
-
 #추가한 변수
 TARGET = 0 # person
 

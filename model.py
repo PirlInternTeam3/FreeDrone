@@ -16,7 +16,7 @@ width = 640
 input_size = height * width  # height * width
 num_classes = 3  # number of classes
 
-def load_data(path = './cnn/training_dataset/*.npz', random_state = 42):
+def load_data(path = './cnn/training_labeled_dataset/*.npz', random_state = 42):
     x_train = np.empty((0, height, width, 1))
     y_train = np.empty((0, num_classes))
     training_data = glob.glob(path)

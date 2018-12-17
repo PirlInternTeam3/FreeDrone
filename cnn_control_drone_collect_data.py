@@ -100,7 +100,7 @@ def control_and_collect(droneVision, args):
             # OpenCV 는 이미지를 None 으로 표시하는 버그가 있으므로, 조건문을 삽입해 None 이 아닐 경우에만 제어 및 데이터 수집 실시
             if (drone_img is not None):
 
-                dir_img = "cnn/images/drone/" + file_name
+                dir_img = "./cnn/training_images/" + file_name
                 if not os.path.exists(dir_img):
                     os.makedirs(dir_img)
 
@@ -196,7 +196,7 @@ def control_and_collect(droneVision, args):
             drone.safe_land(5)
 
         # save data as a numpy file
-        dir_dataset = "cnn/training_dataset"
+        dir_dataset = "./cnn/training_labeled_dataset"
         if not os.path.exists(dir_dataset):
             os.makedirs(dir_dataset)
         try:

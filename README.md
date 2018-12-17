@@ -9,6 +9,6 @@ Postech Pirl Intern Project team 3
 
 pyparrot 패키지속 DroneVisionGUI 클래스에 멤버 변수를 추가하고 수정한다.  
 
-![add_variable](./images/readme_images/1.jpg)
+![add_variable](./images/1.jpg)
 
-![change_variable](./images/readme_images/2.jpg)
+![change_variable](./images/2.jpg)
