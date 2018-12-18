@@ -97,7 +97,7 @@ def control_and_collect(droneVision, args):
             # DroneVisionGUI 클래스에서 img 변수를 생성하고 할당해줘서 버퍼의 이미지를 계속 가져온다.
             drone_img = droneVision.img.copy()
 
-            # OpenCV 는 이미지를 None 으로 표시하는 버그가 있으므로, 조건문을 삽입해 None 이 아닐 경우에만 제어 및 데이터 수집 실시
+            # OpenCV 는 이미지를 None 으로 표하는 버그가 있으므로, 조건문을 삽입해 None 이 아닐 경우에만 제어 및 데이터 수집 실시
             if (drone_img is not None):
 
                 dir_img = "./cnn/training_images/" + file_name

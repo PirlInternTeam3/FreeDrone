@@ -4,7 +4,7 @@
 #   Copyright (C) 2018 * Ltd. All rights reserved.
 #
 #   Editor      : VIM
-#   File name   : video_demo.py
+#   File name   : yolov3_video_demo.py
 #   Author      : YunYang1994
 #   Created date: 2018-11-30 15:56:37
 #   Description :
@@ -31,7 +31,7 @@ input_tensor, output_tensors = utils.read_pb_return_tensors(tf.get_default_graph
 
 
 #추가한 변수
-TARGET = 0 # person
+TARGET = [2, 3, 7, 8, 14, 36] # person
 HEIGHT = 480
 WIDTH = 640
 PADDING = 2
@@ -63,7 +63,7 @@ with tf.Session() as sess:
         target_bounded_boxes = list()
 
         for i in range(len(labels)):
-            if labels[i] == TARGET: # PERSON
+            if labels[i] in TARGET: # PERSON
                 target_only_boxes.append(boxes[i])
                 target_only_scores.append(scores[i])
                 target_only_labels.append(labels[i])

@@ -4,15 +4,10 @@ from PIL import Image
 from core import utils
 import time
 import numpy as np
-
 from scipy.spatial import distance
-
 from pyparrot.Minidrone import Mambo
 from pyparrot.Bebop import Bebop
 from pyparrot.DroneVisionGUI import DroneVisionGUI
-
-#추가한 변수
-TARGET = 0 # person
 
 # #bebop image
 # HEIGHT = 480
@@ -22,12 +17,21 @@ TARGET = 0 # person
 HEIGHT = 360
 WIDTH = 640
 
-PADDING = 2
-# drone_centroid
-drone_centroid = (int(WIDTH / 2), int(HEIGHT / 2))
+# ##### HUMAN with RED TRACKING #####
+#TARGET = [0] # person
+# drone_centroid = (int(WIDTH / 2), int(HEIGHT / 2)) # drone_centroid
+# LOWER_RED_RANGE = np.array([17, 15, 100])
+# UPPER_RED_RANGE = np.array([50, 56, 200])
+# TARGET_AREA = 25*10e3
+# LIMIT_AREA = 30*10e3
+
+##### POSLA with any COLOR TRACKING #####
+TARGET = [2] # car, motorcycle, truck, boat, bird, skate board 2, 3, 7, 8, 14, 36
+drone_centroid = (int(WIDTH / 2), int(HEIGHT * 3 / 4)) # drone_centroid
 LOWER_RED_RANGE = np.array([17, 15, 100])
 UPPER_RED_RANGE = np.array([50, 56, 200])
-
+TARGET_AREA = 2*10e3
+LIMIT_AREA = 2*10e3
 
 
 class UserVision:
@@ -60,6 +64,9 @@ def tracking_target(droneVision, args):
     if (testFlying):
         drone.safe_takeoff(5)
 
+    if (testFlying):
+        drone.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=-30, duration=1)
+
     SIZE = [416, 416]
     classes = utils.read_coco_names('./data/coco.names')
     input_tensor, output_tensors = utils.read_pb_return_tensors(tf.get_default_graph(),
@@ -90,7 +97,7 @@ def tracking_target(droneVision, args):
                 target_bounded_boxes = list()
 
                 for i in range(len(labels)):
-                    if labels[i] == TARGET:  # PERSON
+                    if labels[i] in TARGET:
                         target_only_boxes.append(boxes[i])
                         target_only_scores.append(scores[i])
                         target_only_labels.append(labels[i])
@@ -130,26 +137,26 @@ def tracking_target(droneVision, args):
                             dx = pt2[0] - pt1[0]
                             dy = pt2[1] - pt1[1]
                             target_centroid.append((int(pt1[0] + dx / 2), int(pt1[1] + dy / 2)))
-                            cv2.rectangle(result, pt1=pt1, pt2=pt2, color=[0, 0, 255], thickness=PADDING * 3)
+                            cv2.rectangle(result, pt1=pt1, pt2=pt2, color=[0, 0, 255], thickness=6)
                             area = dx * dy
 
                     except:
                         print("No Person with Red")
                         continue
 
-                cv2.circle(result, drone_centroid, radius=4, color=[255, 0, 0], thickness=PADDING)
+                cv2.circle(result, drone_centroid, radius=4, color=[255, 0, 0], thickness=2)
 
                 dst = list()
 
                 for i in target_centroid:
-                    cv2.circle(result, i, radius=4, color=[0, 0, 255], thickness=PADDING)
+                    cv2.circle(result, i, radius=4, color=[0, 0, 255], thickness=2)
                     cv2.arrowedLine(result, drone_centroid, i, color=[255, 0, 0], thickness=4)
                     dst.append(distance.euclidean(drone_centroid, i))
 
                 try:
 
                     if dst[0] > 10:
-                        yaw_rate = int(dst[0] / 10)
+                        yaw_rate = int(dst[0] / 20)
                         vertical_rate = int(dst[0] / 20)
 
                         # 우하단
@@ -170,14 +177,14 @@ def tracking_target(droneVision, args):
                         vertical_rate = 0
 
 
-                    if area > 25*10e3:
-                        pitch_rate = -int(35*10e3 / area)
+                    if area > TARGET_AREA:
+                        pitch_rate = -int(LIMIT_AREA / area)
 
-                    elif area == 25*10e3:
+                    elif area == TARGET_AREA:
                         pitch_rate = 0
 
-                    elif area < 25*10e3:
-                        pitch_rate = int(35*10e3 / area)
+                    elif area < TARGET_AREA:
+                        pitch_rate = int(LIMIT_AREA / area)
 
                     print("Area: {}, Distance: {}, \nPitch: {} degree/s, Yaw: {} degree/s, Vertical: {} degree/s".format(area, dst, pitch_rate, yaw_rate, vertical_rate))
 
@@ -232,7 +239,7 @@ if __name__ == "__main__":
         drone = Mambo(mamboAddr, use_wifi=True)
         success = drone.connect(num_retries=3)
         is_bebop = False
-        #drone.set_max_tilt()
+
     if (success):
         # get the state information
         print("sleeping")
