@@ -237,7 +237,7 @@ if __name__ == "__main__":
         width = 856
 
     elif drone_type == 'm':
-        mamboAddr = "64:E5:99:F7:22:4A"
+        mamboAddr = "58:FB:84:3B:12:62"
         drone = Mambo(mamboAddr, use_wifi=True)
         success = drone.connect(num_retries=3)
         is_bebop = False
