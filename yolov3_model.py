@@ -21,7 +21,7 @@ class Yolov3(object):
         self.pitch_rate = 0
         self.yaw_rate = 0
         self.vertical_rate = 0
-        self.TARGET = [0]
+        self.TARGET = 0
         self.drone_centroid = (int(640 / 2), int(480 / 2)) # drone_centroid
 
 
@@ -29,8 +29,6 @@ class Yolov3(object):
         if frame is None:
             print("No image!")
         else:
-            prev_time = time.time()
-
             #####TF MODEL#####
             image = Image.fromarray(frame)
             img_resized = np.array(image.resize(size=tuple(self.SIZE)), dtype=np.float32)
@@ -38,9 +36,9 @@ class Yolov3(object):
             boxes, scores, labels = self.sess.run(self.output_tensors, feed_dict={self.input_tensor: np.expand_dims(img_resized, axis=0)})
             image, bbox_resized = utils.draw_boxes(image, boxes, scores, labels, self.classes, self.SIZE, show=False, target=self.TARGET)
             result = np.asarray(image)
-            self.pitch_rate, self.yaw_rate, self.vertical_rate, final_img = self.calculate_pitch_yaw_vertical(bbox_resized, result)
+            self.calculate_pitch_yaw_vertical(bbox_resized, result)
 
-        return final_img
+        return result
 
     def calculate_pitch_yaw_vertical(self, bbox_resized, result):
 
@@ -74,57 +72,42 @@ class Yolov3(object):
                 print("No Person with Red")
                 continue
 
+        # 드론 중점 그림
         cv2.circle(result, self.drone_centroid, radius=4, color=[255, 0, 0], thickness=2)
+
 
         dst = list()
 
+        # 드론 중점과 타겟간 중점 그림
         for i in target_centroid:
             cv2.circle(result, i, radius=4, color=[0, 0, 255], thickness=2)
             cv2.arrowedLine(result, self.drone_centroid, i, color=[255, 0, 0], thickness=4)
             dst.append(distance.euclidean(self.drone_centroid, i))
 
-        try:
+        if dst[0] > 10:
+            self.yaw_rate = int(dst[0] / 20)
+            self.vertical_rate = int(dst[0] / 20)
 
-            if dst[0] > 10:
-                yaw_rate = int(dst[0] / 20)
-                vertical_rate = int(dst[0] / 20)
+            # 우하단
+            if self.drone_centroid[0] <= target_centroid[0][0] and self.drone_centroid[1] <= target_centroid[0][1]:
+                self.vertical_rate = -self.vertical_rate
 
-                # 우하단
-                if self.drone_centroid[0] <= target_centroid[0][0] and self.drone_centroid[1] <= target_centroid[0][1]:
-                    vertical_rate = -vertical_rate
+            # 좌하단
+            elif self.drone_centroid[0] > target_centroid[0][0] and self.drone_centroid[1] <= target_centroid[0][1]:
+                self.yaw_rate = -self.yaw_rate
+                self.vertical_rate = -self.vertical_rate
 
-                # 좌하단
-                elif self.drone_centroid[0] > target_centroid[0][0] and self.drone_centroid[1] <= target_centroid[0][1]:
-                    yaw_rate = -yaw_rate
-                    vertical_rate = -vertical_rate
+            # 좌상단
+            elif self.drone_centroid[0] > target_centroid[0][0] and self.drone_centroid[1] > target_centroid[0][1]:
+                self.yaw_rate = -self.yaw_rate
 
-                # 좌상단
-                elif self.drone_centroid[0] > target_centroid[0][0] and self.drone_centroid[1] > target_centroid[0][1]:
-                    yaw_rate = -yaw_rate
+        else:
+            self.yaw_rate = 0
+            self.vertical_rate = 0
 
-            else:
-                yaw_rate = 0
-                vertical_rate = 0
+        if area > 25000:
+            self.pitch_rate = -int(area / 30000)
 
-            if area > 25000:
-                pitch_rate = -int(area / 30000)
-
-            else:
-                pitch_rate = int(30000 / area)
-
-        except:
-            pass
-
-        ##################################################
-
-        curr_time = time.time()
-        exec_time = curr_time - prev_time
-        info = "time: %.2f ms" % (1000 * exec_time)
-        cv2.putText(result, text=info, org=(50, 70), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                    fontScale=1, color=(255, 0, 0), thickness=2)
-        cv2.namedWindow("result", cv2.WINDOW_AUTOSIZE)
-        cv2.imshow("result", result)
-        ##################################################
-
-        return result
+        else:
+            self.pitch_rate = int(30000 / area)
 
