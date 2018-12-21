@@ -53,7 +53,7 @@ with tf.Session() as sess:
 
 
         boxes, scores, labels = sess.run(output_tensors, feed_dict={input_tensor: np.expand_dims(img_resized, axis=0)})
-        # image = utils.draw_boxes(image, boxes, scores, labels, classes, SIZE, show=False)
+        image = utils.draw_boxes(image, boxes, scores, labels, classes, SIZE, show=False)
 
         ##################################################
         #여기부터 수정

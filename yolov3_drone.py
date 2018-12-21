@@ -17,21 +17,21 @@ from pyparrot.DroneVisionGUI import DroneVisionGUI
 HEIGHT = 360
 WIDTH = 640
 
-# ##### HUMAN with RED TRACKING #####
-#TARGET = [0] # person
-# drone_centroid = (int(WIDTH / 2), int(HEIGHT / 2)) # drone_centroid
-# LOWER_RED_RANGE = np.array([17, 15, 100])
-# UPPER_RED_RANGE = np.array([50, 56, 200])
-# TARGET_AREA = 25*10e3
-# LIMIT_AREA = 30*10e3
-
-##### POSLA with any COLOR TRACKING #####
-TARGET = [2] # car, motorcycle, truck, boat, bird, skate board 2, 3, 7, 8, 14, 36
-drone_centroid = (int(WIDTH / 2), int(HEIGHT * 3 / 4)) # drone_centroid
+##### HUMAN with RED TRACKING #####
+TARGET = [0] # person
+drone_centroid = (int(WIDTH / 2), int(HEIGHT / 2)) # drone_centroid
 LOWER_RED_RANGE = np.array([17, 15, 100])
 UPPER_RED_RANGE = np.array([50, 56, 200])
-TARGET_AREA = 2*10e3
-LIMIT_AREA = 2*10e3
+TARGET_AREA = 25*10e3
+LIMIT_AREA = 30*10e3
+
+# ##### POSLA with any COLOR TRACKING #####
+# TARGET = [2] # car, motorcycle, truck, boat, bird, skate board 2, 3, 7, 8, 14, 36
+# drone_centroid = (int(WIDTH / 2), int(HEIGHT * 3 / 4)) # drone_centroid
+# LOWER_RED_RANGE = np.array([17, 15, 100])
+# UPPER_RED_RANGE = np.array([50, 56, 200])
+# TARGET_AREA = 2*10e3
+# LIMIT_AREA = 2*10e3
 
 
 class UserVision:
@@ -178,7 +178,7 @@ def tracking_target(droneVision, args):
 
 
                     if area > TARGET_AREA:
-                        pitch_rate = -int(LIMIT_AREA / area)
+                        pitch_rate = -int(area/ LIMIT_AREA)
 
                     elif area == TARGET_AREA:
                         pitch_rate = 0

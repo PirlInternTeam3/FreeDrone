@@ -296,3 +296,9 @@ class NeuralNetwork():
         # model setting
 
         inputShape = (raw, column, channel)
+
+    def create_yolov3(self, raw=height, column=width, channel=1):
+        # model setting
+
+        inputShape = (raw, column, channel)
+
