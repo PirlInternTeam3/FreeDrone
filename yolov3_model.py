@@ -34,17 +34,17 @@ class Yolov3(object):
             img_resized = np.array(image.resize(size=tuple(self.SIZE)), dtype=np.float32)
             img_resized = img_resized / 255
             boxes, scores, labels = self.sess.run(self.output_tensors, feed_dict={self.input_tensor: np.expand_dims(img_resized, axis=0)})
-            image, bbox_resized = utils.draw_boxes(image, boxes, scores, labels, self.classes, self.SIZE, show=False, target=self.TARGET)
+            image, bbox_list = utils.draw_boxes(image, boxes, scores, labels, self.classes, self.SIZE, show=False, target=self.TARGET)
             result = np.asarray(image)
-            self.calculate_pitch_yaw_vertical(bbox_resized, result)
+            #self.calculate_pitch_yaw_vertical(bbox_resized, result)
 
         return result
 
-    def calculate_pitch_yaw_vertical(self, bbox_resized, result):
+    def calculate_pitch_yaw_vertical(self, bbox_list, result):
 
         target_centroid = list()
 
-        for i in bbox_resized:
+        for i in bbox_list:
             pt1 = (int(i[0]), int(i[1]))
             pt2 = (int(i[2]), int(i[3]))
 
