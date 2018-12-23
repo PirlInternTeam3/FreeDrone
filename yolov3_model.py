@@ -29,7 +29,8 @@ class Yolov3(object):
 
     def run_model(self, frame):
         if frame is None:
-            print("No image!")
+            print("No image! Wait a Seconds...!")
+            return frame
         else:
             #####TF MODEL#####
             image = Image.fromarray(frame)
@@ -39,8 +40,7 @@ class Yolov3(object):
             image, bbox_list = utils.draw_boxes(image, boxes, scores, labels, self.classes, self.SIZE, show=False, target=self.TARGET)
             self.result = np.asarray(image)
             self.calculate_pitch_yaw_vertical(bbox_list)
-
-        return self.result
+            return self.result
 
     def calculate_pitch_yaw_vertical(self, bbox_list):
 
@@ -112,10 +112,10 @@ class Yolov3(object):
                 self.vertical_rate = 0
 
             if area[0] > 25000:
-                self.pitch_rate = -int(area[0] / 30000)
+                self.pitch_rate = -int(area[0] / 30000)*2
 
             else:
-                self.pitch_rate = int(30000 / area[0])
+                self.pitch_rate = int(30000 / area[0])*2
 
             print("Red Person & Centroid Found!\narea[0]:{}, dst[0]:{}".format(area[0], dst[0]))
 

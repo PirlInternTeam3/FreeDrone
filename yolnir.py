@@ -28,17 +28,17 @@ class Yolnir(object):
         if (self.test_flying): drone.safe_takeoff(5)
 
         while self.loop:
-            print("MAIN! Pitch:{}, Yaw:{}, Vertical:{}".format(self.pitch, self.yaw, self.vertical))
+            # print("MAIN! Pitch:{}, Yaw:{}, Vertical:{}".format(self.pitch, self.yaw, self.vertical))
             if (self.test_flying): drone.fly_direct(roll=0, pitch=self.pitch, yaw=self.yaw, vertical_movement=self.vertical, duration=0.1)
 
         if (self.test_flying): drone.safe_land(5)
 
-        # print("Ending the sleep and vision")
-        # drone_vision.close_video()
-        # drone.smart_sleep(5)
-        #
-        # print("disconnecting")
-        # drone.disconnect()
+        print("Ending the sleep and vision")
+        drone_vision.close_video()
+        drone.smart_sleep(5)
+
+        print("disconnecting")
+        drone.disconnect()
 
 
     def main(self):
@@ -60,12 +60,12 @@ class Yolnir(object):
         #     print("Preparing to open vision")
         #     mamboVision = DroneVisionGUI(mambo, is_bebop=is_bebop, buffer_size=200, user_code_to_run=None, user_args=None)
         #
-        #     mamboVision.open_video()
-        #
         #     direction = yolov3_detect.Direction(mamboVision, yolnir)
         #     direction.run()
         #
         #     yolnir.flying(mambo, mamboVision)
+        #
+        #
         #
         #     # tracking = yolov3_tracking.Tracking(mambo)
         #     # tracking.run()
