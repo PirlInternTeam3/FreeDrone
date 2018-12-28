@@ -1,7 +1,8 @@
 import yolov3_detect
-import yolov3_tracking
+import yolov3_avoidance
 from pyparrot.Minidrone import Mambo
 from pyparrot.DroneVisionGUI import DroneVisionGUI
+from cnn_model import NeuralNetwork
 import cv2
 
 class Yolnir(object):
@@ -73,6 +74,11 @@ class Yolnir(object):
         vid = cv2.VideoCapture(0)
         direction = yolov3_detect.Direction(vid, yolnir)
         direction.run()
+
+        # model = NeuralNetwork()
+        # model.load_model(path = './cnn/model/model_'+'1545127008'+'.h5')
+        # # avoidance = yolov3_avoidance.Avoidance(vid, model)
+        # # avoidance.run()
 
         yolnir.flying(None, None)
 

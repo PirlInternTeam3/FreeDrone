@@ -1,7 +1,7 @@
 import cv2
 import sys
 import numpy as np
-from model import NeuralNetwork
+from cnn_model import NeuralNetwork
 
 height = 360
 width = 640

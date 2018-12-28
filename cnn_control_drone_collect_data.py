@@ -4,7 +4,6 @@ Author: Amy McGovern
 from pyparrot.Bebop import Bebop
 from pyparrot.Minidrone import Mambo
 from pyparrot.DroneVisionGUI import DroneVisionGUI
-import threading
 import cv2
 import time
 import numpy as np

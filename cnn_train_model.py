@@ -1,4 +1,4 @@
-from model import load_data,NeuralNetwork, show_data
+from cnn_model import load_data,NeuralNetwork, show_data
 import time
 import os
 

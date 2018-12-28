@@ -1,7 +1,6 @@
 import glob
 import numpy as np
 import pandas as pd
-from matplotlib import pyplot as plt
 
 path = './cnn/training_labeled_dataset/*.npz'
 training_data = glob.glob(path)

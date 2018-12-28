@@ -6,22 +6,29 @@ from core import utils
 from scipy.spatial import distance
 
 
+
+
+
 class Yolov3(object):
     def __init__(self):
 
         self.SIZE = [416, 416]
-        self.classes = utils.read_coco_names('./data/coco.names')
+        self.classes = utils.read_coco_names('./data/posla-obj.names')
         self.num_classes = len(self.classes)
         self.input_tensor, self.output_tensors = utils.read_pb_return_tensors(tf.get_default_graph(), "./checkpoint/yolov3_gpu_nms.pb",
                                                    ["Placeholder:0", "concat_10:0", "concat_11:0", "concat_12:0"])
         self.sess = tf.Session()
-        self.LOWER_RED_RANGE = np.array([17, 15, 100])
-        self.UPPER_RED_RANGE = np.array([50, 56, 200])
+        # self.LOWER_RED_RANGE = np.array([17, 15, 100])
+        # self.UPPER_RED_RANGE = np.array([50, 56, 200])
+        self.LOWER_RED_RANGE = np.array([0, 0, 0])
+        self.UPPER_RED_RANGE = np.array([255, 255, 255])
         self.pitch_rate = 0
         self.yaw_rate = 0
         self.vertical_rate = 0
         self.TARGET = 0
-        self.drone_centroid = (int(640 / 2), int(480 / 2)) # drone_centroid
+        self.drone_centroid = (int(856 / 2), int(480 * (0.8))) # drone_centroid
+        # self.drone_centroid = (int(856 / 2), int(480 * (0.4))) # drone_centroid
+        # self.drone_centroid = (int(640 / 2), int(360 / 2)) # drone_centroid
         self.result = None
 
     def get_pitch_yaw_vertical(self):
@@ -91,7 +98,8 @@ class Yolov3(object):
 
         try:
             if dst[0] > 10:
-                self.yaw_rate = int(dst[0] / 20)
+                self.yaw_rate = int(dst[0]/2)
+                # self.yaw_rate = int(dst[0] / 20)
                 self.vertical_rate = int(dst[0] / 20)
 
                 # 우하단
@@ -111,11 +119,11 @@ class Yolov3(object):
                 self.yaw_rate = 0
                 self.vertical_rate = 0
 
-            if area[0] > 25000:
-                self.pitch_rate = -int(area[0] / 30000)*2
+            if area[0] > 4000:
+                self.pitch_rate = -int(area[0] / 8000)
 
             else:
-                self.pitch_rate = int(30000 / area[0])*2
+                self.pitch_rate = int(8000 / area[0])
 
             print("Red Person & Centroid Found!\narea[0]:{}, dst[0]:{}".format(area[0], dst[0]))
 

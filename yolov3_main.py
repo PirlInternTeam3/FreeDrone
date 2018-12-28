@@ -9,7 +9,7 @@ from pyparrot.DroneVisionGUI import DroneVisionGUI
 
 q = queue.Queue(50)
 
-class Yolo_Dectection():
+class Yolnir():
 
     def __init__(self, drone_vision):
         self.yv3 = yolov3_model.Yolov3()
@@ -25,6 +25,12 @@ class Yolo_Dectection():
         self.pitch = p
         self.yaw = y
         self.vertical = v
+
+    def get_p_y_v(self):
+        return self.pitch, self.yaw, self.vertical
+
+    def get_loop(self):
+        return self.loop
 
     def detect_target(self, args):
         frame = self.drone_vision.get_latest_valid_picture()
@@ -47,6 +53,7 @@ class Yolo_Dectection():
                 self.loop = False
 
             q.put((pitch, yaw, vertical, self.loop))
+            # time.sleep(0.0005)
 
         else:
             pass
@@ -58,16 +65,17 @@ def tracking_target(droneVision, args):
 
     loop = True
     drone = args[0]
+    status = args[1]
+    q = args[2]
 
-    if args[1] == 't':
+    if status == 't':
         testFlying = True
     else :
         testFlying = False
 
-    q = args[2]
-
     if (testFlying):
         drone.safe_takeoff(5)
+
 
     while loop:
         params = q.get()
@@ -115,9 +123,12 @@ if __name__ == "__main__":
         print("Preparing to open vision")
 
         status = input("Input 't' if you want to TAKE OFF or not : ")
+
         droneVision = DroneVisionGUI(drone, is_bebop=is_bebop, buffer_size=200, user_code_to_run=tracking_target, user_args=(drone, status, q))
 
-        yd = Yolo_Dectection(droneVision)
-        droneVision.set_user_callback_function(yd.detect_target, user_callback_args=None)
-
+        yolnir = Yolnir(droneVision)
+        droneVision.set_user_callback_function(yolnir.detect_target, user_callback_args=None)
         droneVision.open_video()
+
+
+

@@ -13,7 +13,6 @@ class Direction(object):
         self.yolnir = yolnir
 
     def detect(self):
-        print("시----------------------------------------------------작")
 
         self.drone_vision.open_video()
 
